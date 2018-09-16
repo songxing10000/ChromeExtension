@@ -27,7 +27,11 @@ function DOMtoString(document_root) {
 
                 var ipStr = cellStrs[1].split(' ')[0];
                 var sslTimeStr = cellStrs[3];
-                outArra.push({ 'ip': ipStr, 'ssl': sslTimeStr })
+
+
+                if (sslTimeStr.length < 3) {
+                    outArra.push({ 'ip': ipStr, 'ssl': sslTimeStr })
+                }
             } else if (cellStrs.length > 6) {
 
                 var idx;
@@ -50,12 +54,18 @@ function DOMtoString(document_root) {
                 for (outIdx = 0; outIdx < ips.length; outIdx++) {
                     var ip = ips[outIdx];
                     var sslStr = ssls[outIdx];
+                    if (sslStr.length < 3) {
                     outArra.push({ 'ip': ip, 'ssl': sslStr })
+                    }
                 }
             } else if (cellStrs.length < 6) {
             }
         }
-        var arr = outArra.sort(compare("ssl"));
+
+
+
+        var arr =  outArra.sort(compare('ssl'));
+        
         var outStr = '';
 
         for (k = 0; k < arr.length; k++) {
@@ -65,17 +75,24 @@ function DOMtoString(document_root) {
 
                 var ip = dict['ip'];
                 var ssl = dict['ssl'];
+                var url = document.getElementsByClassName('search-write-cont w360 WrapHid')[0].value;
                 var ipLine = '\n' + ip + ' ' + ssl
-
-                outStr += ipLine
+                if (url) {
+                    ipLine = '\n' + ip + ' ' + url
+                }
+                if (outStr.indexOf(ip) === -1){
+ 
+                    outStr += ipLine
+                }
 
 
             }
 
         }
-
+        
         return outStr;
     }
+
     var outstr = '';
     var tables = document.getElementsByTagName('table');
     /// 请求路径	{base_url}/credit/personal/contactdetail/{ssoId}
