@@ -29,7 +29,7 @@ function DOMtoString(document_root) {
                 var sslTimeStr = cellStrs[3];
 
 
-                if (sslTimeStr.length < 3) {
+                if (sslTimeStr.length < 3 && outArra.length < 5) {
                     outArra.push({ 'ip': ipStr, 'ssl': sslTimeStr })
                 }
             } else if (cellStrs.length > 6) {
@@ -54,7 +54,7 @@ function DOMtoString(document_root) {
                 for (outIdx = 0; outIdx < ips.length; outIdx++) {
                     var ip = ips[outIdx];
                     var sslStr = ssls[outIdx];
-                    if (sslStr.length < 3) {
+                    if (sslStr.length < 3 && outArra.length < 5) {
                     outArra.push({ 'ip': ip, 'ssl': sslStr })
                     }
                 }
