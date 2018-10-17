@@ -65,7 +65,7 @@ function DOMtoString(document_root) {
                     var ip = ips[outIdx];
                     var sslStr = ssls[outIdx];
                     if (sslStr.length < 3 && outArra.length < 5) {
-                    outArra.push({ 'ip': ip, 'ssl': sslStr })
+                        outArra.push({ 'ip': ip, 'ssl': sslStr })
                     }
                 }
             } else if (cellStrs.length < 6) {
@@ -74,8 +74,8 @@ function DOMtoString(document_root) {
 
 
 
-        var arr =  outArra.sort(compare('ssl'));
-        
+        var arr = outArra.sort(compare('ssl'));
+
         var outStr = '';
 
         for (k = 0; k < arr.length; k++) {
@@ -90,8 +90,8 @@ function DOMtoString(document_root) {
                 if (url) {
                     ipLine = '\n' + ip + ' ' + url
                 }
-                if (outStr.indexOf(ip) === -1){
- 
+                if (outStr.indexOf(ip) === -1) {
+
                     outStr += ipLine
                 }
 
@@ -99,8 +99,25 @@ function DOMtoString(document_root) {
             }
 
         }
-        
+
         return outStr;
+    }
+    if (loadUrl.indexOf('/merge_requests/new') >= 0) {
+        var msgs = document.getElementsByClassName('commit-row-message');
+        
+        var msgStrs = []
+        for (i = 0; i < msgs.length; i++) {
+            var msgStr =  document.getElementsByClassName('commit-row-message')[i].innerText;
+            if (msgStr !='Merge branch \'master\' of ') {
+                msgStrs.push(msgStr)
+            }
+        }
+        var des = msgStrs.join('、')
+        document.getElementById('merge_request_title').innerText = des;
+        document.getElementById('merge_request_description').innerText = des;
+        document.getElementById('merge_request_title').value = des;
+        document.getElementById('merge_request_description').value = des;
+        return ''
     }
 
     var outstr = '';

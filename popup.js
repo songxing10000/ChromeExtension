@@ -3,10 +3,12 @@ var url;
 
 // 监听来消息 getSource
 chrome.runtime.onMessage.addListener(function (request, sender) {
-
+  message.innerText = 'dfd'
   if (request.action == "getSource") {
     if (url.indexOf('http://tool.chinaz.com/dns?') >= 0) {
       message.innerText = '\n' +  request.source;
+    } else if (url.indexOf('/merge_requests/new') >= 0) {
+      
     } else {
       // popup.js 回显示 网页里 信息。
       message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
