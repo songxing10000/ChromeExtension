@@ -1,4 +1,14 @@
 
+/**
+ *  document.getElementById('merge_request_title')
+    document.getElementById('merge_request_description')
+    document.getElementsByClassName('commit-row-message')
+    document.getElementsByClassName('commit-row-message')[2].innerText
+    document.getElementsByClassName('commit-row-message')[1].innerText
+    document.getElementsByClassName('commit-row-message')[0].innerText
+    "Merge branch 'master' of "
+ * 
+ * */
 //定义一个比较器
 function compare(propertyName) {
     return function (object1, object2) {
