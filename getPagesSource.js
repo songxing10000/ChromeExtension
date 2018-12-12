@@ -23,13 +23,15 @@ function compare(propertyName) {
         }
     }
 }
-/// 处理一个单词
-function translate(willTranslateStr, translatedStr) {
+/// 处理一个单词 ，str 定义自符串，label 定义连线label
+function translate(willTranslateStr, translatedStr,outTypeStr) {
     // 一个单词 如，Daily trend chart
     let array = translatedStr.split(' ')
     if (array.length === 1) {
         /// 如 曾经  被翻译 成 once
         translatedStr = array[0]
+        /// 再来一次首字母小写
+        translatedStr = translatedStr.charAt(0).toLowerCase() + translatedStr.slice(1);
     } else {
         let str = ''
         for (let index = 0; index < array.length; index++) {
@@ -45,6 +47,11 @@ function translate(willTranslateStr, translatedStr) {
         /// 再来一次首字母小写
         translatedStr = str.charAt(0).toLowerCase() + str.slice(1);
     }
+    if (outTypeStr === 'str') {
+        return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
+    } else if (outTypeStr === 'label') {
+        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
+    }
     return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 }
 
@@ -56,9 +63,6 @@ function DOMtoString(document_root) {
     if (loadUrl.indexOf('translate.google.cn') >= 0) {
         /// 谷歌翻译处理
         /// 待翻译的字符串
-        /**
-        * 多行注释来说明原因
-        */
         var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;
         /// 翻译后的字符串 ,如  Daily trend chart
         var translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
@@ -67,16 +71,21 @@ function DOMtoString(document_root) {
             let willTranslateArray = willTranslateStr.split("、")
             let translatedArray = translatedStr.split(",")
             let str = ''
+            let label = ''
             for (let index = 0; index < translatedArray.length; index++) {
                 const willTranslate = willTranslateArray[index];
                 const translated = translatedArray[index];
                 
-                str += translate(willTranslate,translated) + '\n'
+                str += translate(willTranslate,translated,'str') + '\n'
+                label += translate(willTranslate,translated,'label') + '\n'
             }
-            return str
+            return str + '\n' + label
         } else {
             // 一个单词 如，Daily trend chart
-            return translate(willTranslateStr,translatedStr)
+            let str = translate(willTranslateStr,translatedStr, 'str')
+            let label =  translate(willTranslateStr,translatedStr, 'label')
+            return  str + '\n' + '\n' + label
+            
         }
 
         /// 日趋势图
