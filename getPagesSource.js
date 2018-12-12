@@ -60,7 +60,10 @@ function translate(willTranslateStr, translatedStr,outTypeStr) {
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
 
-    if (loadUrl.indexOf('translate.google.cn') >= 0) {
+    if (loadUrl.indexOf('weex.json') >= 0) {
+        let text = document.childNodes[0].innerText
+        return text
+    } else  if (loadUrl.indexOf('translate.google.cn') >= 0) {
         /// 谷歌翻译处理
         /// 待翻译的字符串
         var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;

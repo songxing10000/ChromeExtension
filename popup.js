@@ -6,14 +6,28 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
   message.innerText = 'dfd'
   if (request.action == "getSource") {
     if (url.indexOf('http://tool.chinaz.com/dns?') >= 0) {
-      message.innerText = '\n' +  request.source;
+      message.innerText = '\n' + request.source;
     } else if (url.indexOf('/merge_requests/new') >= 0) {
 
-    }else if (url.indexOf('translate.google.cn') >= 0) {
+    } else if (url.indexOf('translate.google.cn') >= 0) {
       message.innerText = request.source;
     } else {
       // popup.js 回显示 网页里 信息。
-      message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
+      let key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkAh06uqqrA8qIsyd98'
+      let iv = 'kWeUizGkPbW2AKR7bXK3W71l7U7VN/+1ohd0kuFLbnjTCbp8nTJUQIDAQAB'
+      var keyHex = CryptoJS.enc.Utf8.parse(key);
+      var ivHex = CryptoJS.enc.Utf8.parse(iv);
+      // Triple DES 解密
+      var decrypted = CryptoJS.TripleDES.decrypt(request.source, keyHex, {
+        iv: ivHex,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
+
+      // 转换为 utf8 字符串
+      decrypted = CryptoJS.enc.Utf8.stringify(decrypted);
+      message.innerText = decrypted
+      // message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
     }
 
   }
