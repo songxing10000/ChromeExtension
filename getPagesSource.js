@@ -26,7 +26,44 @@ function compare(propertyName) {
 /// 通过 domcument 拼接相应 字符串
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
-    if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
+
+    if (loadUrl.indexOf('translate.google.cn') >= 0) {
+        /// 谷歌翻译处理
+        /// 待翻译的字符串
+        /**
+        * 多行注释来说明原因
+        */
+        var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;
+        /// 翻译后的字符串 ,如  Daily trend chart
+        var translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
+        if (translatedStr.indexOf("、") >= 0) {
+            // 多个单词 如，Daily trend chart, monthly trend chart
+
+        } else {
+            // 一个单词 如，Daily trend chart
+            let array = translatedStr.split(' ')
+            if (array.length === 1) {
+                /// 如 曾经  被翻译 成 once
+                translatedStr = array[0]
+            } else {
+                let str = ''
+               for (let index = 0; index < array.length; index++) {
+                   const element = array[index];
+                   if (index == 0) {
+                    str += element.charAt(0).toLowerCase()+element.slice(1);
+                   } else {
+                    str += element.charAt(0).toUpperCase()+element.slice(1);  
+                   }
+               }
+               translatedStr = str
+            }
+        }
+
+        /// 日趋势图
+        return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\""+willTranslateStr+"\";"
+
+    } else if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
+        /// host dns 处理
         var cells = document.getElementsByClassName('ReListCent ReLists bor-b1s clearfix')
         var cellIdx;
         var outArra = []
@@ -101,14 +138,14 @@ function DOMtoString(document_root) {
         }
 
         return outStr;
-    }
-    if (loadUrl.indexOf('/merge_requests/new') >= 0) {
+    } else if (loadUrl.indexOf('/merge_requests/new') >= 0) {
+        /// 提交代码时 ，自动抓提交记录文字
         var msgs = document.getElementsByClassName('commit-row-message');
-        
+
         var msgStrs = []
         for (i = 0; i < msgs.length; i++) {
-            var msgStr =  document.getElementsByClassName('commit-row-message')[i].innerText;
-            if (msgStr !='Merge branch \'master\' of ') {
+            var msgStr = document.getElementsByClassName('commit-row-message')[i].innerText;
+            if (msgStr != 'Merge branch \'master\' of ') {
                 msgStrs.push(msgStr)
             }
         }
@@ -119,6 +156,7 @@ function DOMtoString(document_root) {
         document.getElementById('merge_request_description').value = des;
         return ''
     }
+    /// 根据网页抓取property
 
     var outstr = '';
     var tables = document.getElementsByTagName('table');

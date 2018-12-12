@@ -8,7 +8,9 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     if (url.indexOf('http://tool.chinaz.com/dns?') >= 0) {
       message.innerText = '\n' +  request.source;
     } else if (url.indexOf('/merge_requests/new') >= 0) {
-      
+
+    }else if (url.indexOf('translate.google.cn') >= 0) {
+      message.innerText = request.source;
     } else {
       // popup.js 回显示 网页里 信息。
       message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
