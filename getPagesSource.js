@@ -23,6 +23,32 @@ function compare(propertyName) {
         }
     }
 }
+/// 处理一个单词
+function translate(willTranslateStr, translatedStr) {
+    // 一个单词 如，Daily trend chart
+    let array = translatedStr.split(' ')
+    if (array.length === 1) {
+        /// 如 曾经  被翻译 成 once
+        translatedStr = array[0]
+    } else {
+        let str = ''
+        for (let index = 0; index < array.length; index++) {
+            const element = array[index];
+            if (index == 0) {
+                // 首字母小写
+                str += element.charAt(0).toLowerCase() + element.slice(1);
+            } else {
+                // 首字母大写
+                str += element.charAt(0).toUpperCase() + element.slice(1);
+            }
+        }
+        /// 再来一次首字母小写
+        translatedStr = str.charAt(0).toLowerCase() + str.slice(1);
+    }
+    return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
+}
+
+
 /// 通过 domcument 拼接相应 字符串
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
@@ -36,31 +62,25 @@ function DOMtoString(document_root) {
         var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;
         /// 翻译后的字符串 ,如  Daily trend chart
         var translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
-        if (translatedStr.indexOf("、") >= 0) {
+        if (willTranslateStr.indexOf("、") >= 0) {
             // 多个单词 如，Daily trend chart, monthly trend chart
-
+            let willTranslateArray = willTranslateStr.split("、")
+            let translatedArray = translatedStr.split(",")
+            let str = ''
+            for (let index = 0; index < translatedArray.length; index++) {
+                const willTranslate = willTranslateArray[index];
+                const translated = translatedArray[index];
+                
+                str += translate(willTranslate,translated) + '\n'
+            }
+            return str
         } else {
             // 一个单词 如，Daily trend chart
-            let array = translatedStr.split(' ')
-            if (array.length === 1) {
-                /// 如 曾经  被翻译 成 once
-                translatedStr = array[0]
-            } else {
-                let str = ''
-               for (let index = 0; index < array.length; index++) {
-                   const element = array[index];
-                   if (index == 0) {
-                    str += element.charAt(0).toLowerCase()+element.slice(1);
-                   } else {
-                    str += element.charAt(0).toUpperCase()+element.slice(1);  
-                   }
-               }
-               translatedStr = str
-            }
+            return translate(willTranslateStr,translatedStr)
         }
 
         /// 日趋势图
-        return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\""+willTranslateStr+"\";"
+        return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 
     } else if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
         /// host dns 处理
