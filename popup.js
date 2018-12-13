@@ -3,7 +3,6 @@ var url;
 
 // 监听来消息 getSource
 chrome.runtime.onMessage.addListener(function (request, sender) {
-  message.innerText = 'dfd'
   if (request.action == "getSource") {
     if (url.indexOf('http://tool.chinaz.com/dns?') >= 0) {
       message.innerText = '\n' + request.source;
@@ -11,7 +10,11 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     } else if (url.indexOf('translate.google.cn') >= 0) {
       message.innerText = request.source;
-    } else {
+    } else if (url.indexOf('weex.json') >= 0) {
+      if (request.source.indexOf('{"page') >= 0) {
+        message.innerText = 'decrypted'
+        return;
+      }
       // popup.js 回显示 网页里 信息。
       let key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkAh06uqqrA8qIsyd98'
       let iv = 'kWeUizGkPbW2AKR7bXK3W71l7U7VN/+1ohd0kuFLbnjTCbp8nTJUQIDAQAB'
@@ -26,7 +29,18 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
       // 转换为 utf8 字符串
       decrypted = CryptoJS.enc.Utf8.stringify(decrypted);
-      message.innerText = decrypted
+      
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.executeScript(tabs[0].id, {
+                code: 'document.childNodes[0].innerText = ' + JSON.stringify(decrypted.toString())
+            }, function () {
+              if (chrome.runtime.lastError) {
+                message.innerText = 'There was an error injecting script : \n' + chrome.runtime.lastError.message;
+              } else {
+                message.innerText = 'decrypted'
+              }
+            })
+        })
       // message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
     }
 
