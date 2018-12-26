@@ -50,7 +50,8 @@ function translate(willTranslateStr, translatedStr,outTypeStr) {
     if (outTypeStr === 'str') {
         return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
     } else if (outTypeStr === 'label') {
-        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
+        // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
+        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet KYLabelTextFieldView *m_" + translatedStr + "View;"
     }
     return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 }
@@ -64,6 +65,7 @@ function DOMtoString(document_root) {
         let text = document.childNodes[0].innerText
         return text
     } else  if (loadUrl.indexOf('translate.google.cn') >= 0) {
+        /// 考虑  's  Guarantor's vehicle information, guarantor's real estate information
         /// 谷歌翻译处理
         /// 待翻译的字符串
         var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;
