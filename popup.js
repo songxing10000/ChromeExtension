@@ -42,6 +42,8 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             })
         })
       // message.innerText = '/// ' + title + url + '\n' + '#define ' + request.source;
+    } else  {
+      message.innerText = request.source;
     }
 
   }

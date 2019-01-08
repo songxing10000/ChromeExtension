@@ -60,8 +60,33 @@ function translate(willTranslateStr, translatedStr,outTypeStr) {
 /// 通过 domcument 拼接相应 字符串
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
+    if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
+// document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
+// document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
+let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
+let arr2 = document.getElementsByClassName('ant-table-row  ant-table-row-level-2');
+let strOut = ''
 
-    if (loadUrl.indexOf('weex.json') >= 0) {
+for (let index = 0; index < arr1.length; index++) {
+    
+    let str = arr1[index].innerText;
+    
+    let strs = str.split('\n');
+    // alert(strs)
+    let propertyName = strs[0].split('\t')[0];
+    let propertyType = strs[0].split('\t')[1] === 'string'?'NSString':'NSNumber';
+    let propertyDes = strs[2];
+    
+    let copyOrStrong = propertyType === 'NSString'?'copy':'strong';
+    let line = "/// " + propertyDes + "\n" + "@property (nonatomic " + 
+    copyOrStrong +' )'+ propertyType + " *" + propertyName + ";\n"
+    
+    strOut += line;
+    
+}
+
+        return strOut
+    } else if (loadUrl.indexOf('weex.json') >= 0) {
         let text = document.childNodes[0].innerText
         return text
     } else  if (loadUrl.indexOf('translate.google.cn') >= 0) {
