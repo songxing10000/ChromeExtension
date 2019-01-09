@@ -24,7 +24,7 @@ function compare(propertyName) {
     }
 }
 /// 处理一个单词 ，str 定义自符串，label 定义连线label
-function translate(willTranslateStr, translatedStr,outTypeStr) {
+function translate(willTranslateStr, translatedStr, outTypeStr) {
     // 一个单词 如，Daily trend chart
     let array = translatedStr.split(' ')
     if (array.length === 1) {
@@ -61,35 +61,53 @@ function translate(willTranslateStr, translatedStr,outTypeStr) {
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
     if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
-// document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
-// document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
-let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
-let arr2 = document.getElementsByClassName('ant-table-row  ant-table-row-level-2');
-let strOut = ''
+        // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
+        // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
+        let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
+        let arr2 = document.getElementsByClassName('ant-table-row  ant-table-row-level-2');
+        if (arr1.length <= 0 && arr2.length <= 0) {
+            return '未找到数据 打开data这一层试'
+        }
+        let strOut = ''
 
-for (let index = 0; index < arr1.length; index++) {
-    
-    let str = arr1[index].innerText;
-    
-    let strs = str.split('\n');
-    // alert(strs)
-    let propertyName = strs[0].split('\t')[0];
-    let propertyType = strs[0].split('\t')[1] === 'string'?'NSString':'NSNumber';
-    let propertyDes = strs[2];
-    
-    let copyOrStrong = propertyType === 'NSString'?'copy':'strong';
-    let line = "/// " + propertyDes + "\n" + "@property (nonatomic " + 
-    copyOrStrong +' )'+ propertyType + " *" + propertyName + ";\n"
-    
-    strOut += line;
-    
-}
+        for (let index = 0; index < arr1.length; index++) {
+
+            let str = arr1[index].innerText;
+
+            let strs = str.split('\n');
+            let propertyName = strs[0].split('\t')[0];
+            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
+            let propertyDes = strs[2];
+
+            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
+            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
+                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
+
+            strOut += line;
+
+        }
+        for (let index = 0; index < arr2.length; index++) {
+
+            let str = arr2[index].innerText;
+
+            let strs = str.split('\n');
+            let propertyName = strs[0].split('\t')[0];
+            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
+            let propertyDes = strs[2];
+
+            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
+            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
+                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
+
+            strOut += line;
+
+        }
 
         return strOut
     } else if (loadUrl.indexOf('weex.json') >= 0) {
         let text = document.childNodes[0].innerText
         return text
-    } else  if (loadUrl.indexOf('translate.google.cn') >= 0) {
+    } else if (loadUrl.indexOf('translate.google.cn') >= 0) {
         /// 考虑  's  Guarantor's vehicle information, guarantor's real estate information
         /// 谷歌翻译处理
         /// 待翻译的字符串
@@ -105,17 +123,17 @@ for (let index = 0; index < arr1.length; index++) {
             for (let index = 0; index < translatedArray.length; index++) {
                 const willTranslate = willTranslateArray[index];
                 const translated = translatedArray[index];
-                
-                str += translate(willTranslate,translated,'str') + '\n'
-                label += translate(willTranslate,translated,'label') + '\n'
+
+                str += translate(willTranslate, translated, 'str') + '\n'
+                label += translate(willTranslate, translated, 'label') + '\n'
             }
             return str + '\n' + label
         } else {
             // 一个单词 如，Daily trend chart
-            let str = translate(willTranslateStr,translatedStr, 'str')
-            let label =  translate(willTranslateStr,translatedStr, 'label')
-            return  str + '\n' + '\n' + label
-            
+            let str = translate(willTranslateStr, translatedStr, 'str')
+            let label = translate(willTranslateStr, translatedStr, 'label')
+            return str + '\n' + '\n' + label
+
         }
 
         /// 日趋势图
