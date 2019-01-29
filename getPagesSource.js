@@ -81,21 +81,19 @@ function DOMtoString(document_root) {
              
              var outColor = new Set([]);
              var outFont = new Set([]);
-             for (i = 0; i < resultss.length; i++) {
-                 let results = resultss[i];
+             for (let results of resultss) {
                  if ((typeof results) === 'undefined') {
                      continue;
                  }
-                 for (j = 0; j < results.length; j++) {
-                     let result = results[j];
+                 for (let result of results) {
                      if (result.indexOf('#') >= 0) {
                          //// 抓取所有十六进制颜色
                         result = result.match(/#(.*);/)[1];
                         if (result.indexOf(',') >= 0) {
                             let arr = result.split(',')
-                            for (k = 0; k < arr.length; k++) {
+                            for (let arrStr  of arr) {
                                 /// 457FFF 2%, #49B2FC 100%)
-                                let arrStr = arr[k];
+
                                 if (arrStr.indexOf('#') >= 0) {
                                     // #49B2FC 100%)
                                     result = result.match(/#(.*) /)[1];
