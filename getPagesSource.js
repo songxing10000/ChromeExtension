@@ -81,37 +81,77 @@ function DOMtoString(document_root) {
 
             var outColor = new Set([]);
             var outFont = new Set([]);
+            var outBorder = new Set([]);
             for (let results of resultss) {
                 if ((typeof results) === 'undefined') {
                     continue;
                 }
                 for (let result of results) {
-                    if (result.indexOf('#') >= 0) {
+                    if (result.indexOf('border') >= 0) {
+                        if (result.indexOf('border:') >= 0) {
+                            /**
+                             * border: 1px solid #2356FF;
+                             * 转换
+                             * border-width: 2px; borderStyle: solid; border-color:  #2356FF;
+                             */
+                            let arr = result.split(' ')
+                            /// arr 为    ["border:", "1px", "solid", "#2356FF;"]
+                            if (arr.length < 4) {
+                                console.log(arr);
+                            } else {
+                                let bw = arr[1];
+                                let bwValue = bw.replace('px', '') * 2;
+                                let bwStr = '\tborder-width: ' + bwValue + 'px;\n'
+
+                                let bs = arr[2];
+                                let bsStr = '\tborderStyle: ' + bs + ';\n';
+
+                                let bc = arr[3];
+                                let bcStr = '\tborder-color:  ' + bc + '\n';
+                                let borderC = bc.replace('#', '')
+                                borderC = borderC.replace(';', '')
+                                let weexStr = '\n.border' + borderC + ' {\n' + bwStr + bsStr + bcStr + '\n}';
+                                outBorder.add(weexStr);
+                            }
+                        } else if (result.indexOf('border-radius:') >= 0) {
+                            /**
+                             * border-radius: 4px;
+                             * 转换
+                             * border-radius: 8px;
+                             */
+
+                        }
+
+                    } else if (result.indexOf('#') >= 0) {
                         if (result.startsWith('background:')) {
                             let colorHex = result.match(/#(.*);/)[1];
                             let color = 'background-color: #' + colorHex;
-                            let weexStr = '\n.bgc'+colorHex+' {\n\t'+ color+';\n}';
+                            let weexStr = '\n.bgc' + colorHex + ' {\n\t' + color + ';\n}';
 
                             outColor.add(weexStr);
                         } else if (result.startsWith('color:')) {
 
                             let colorHex = result.match(/color: #(.*);/)[1];
-                            let weexStr = '\n.c'+colorHex+' {\n\t'+ result+'\n}';
+                            let weexStr = '\n.c' + colorHex + ' {\n\t' + result + '\n}';
                             outColor.add(weexStr);
                         } else {
+                            /// background-image: linear-gradient(-132deg, #457FFF 2%, #49B2FC 100%);
+                            console.log('非color或background-color: ' + result);
                             continue;
                         }
                     } else if (result.indexOf('font-size') >= 0) {
                         //// 抓取所有字号 font-size: 40px;
                         result = result.match(/font-size: (.*)px;/)[1];
-                        let weexStr = '\n.f'+result+' {\n'+ '    font-size: '+result*2+'px;'+'\n}';
+                        let weexStr = '\n.f' + result + ' {\n' + '    font-size: ' + result * 2 + 'px;' + '\n}';
                         outFont.add(weexStr);
                     }
                 }
 
             }
 
-            return Array.from(outFont).join(' ') + '\n' + Array.from(outColor).join(' ');
+            return Array.from(outFont).join(' ') + '\n' +
+                Array.from(outColor).join(' ') + '\n' +
+                Array.from(outBorder).join(' ');
         } else {
 
         }
