@@ -61,67 +61,60 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
     if (loadUrl.endsWith('index.html') ||
-    loadUrl.indexOf('index.html#artboard') >= 0) {
-         // 有可能是美工的UI图 Sketch
-         var str = document.documentElement.outerHTML;
-         str = str.match(/SMApp\((.*)\) }\);/)[1];
-         if (str.length > 50) {
-             /// 转换成json
-             var json = JSON.parse(str)
-             var page;
-             if (loadUrl.endsWith('index.html')) {
+        loadUrl.indexOf('index.html#artboard') >= 0) {
+        // 有可能是美工的UI图 Sketch
+        var str = document.documentElement.outerHTML;
+        str = str.match(/SMApp\((.*)\) }\);/)[1];
+        if (str.length > 50) {
+            /// 转换成json
+            var json = JSON.parse(str)
+            var page;
+            if (loadUrl.endsWith('index.html')) {
                 page = json.artboards[0];
-             } else if (loadUrl.indexOf('index.html#artboard') >= 0) {
+            } else if (loadUrl.indexOf('index.html#artboard') >= 0) {
                 var idx = loadUrl.split('index.html#artboard')[1]
                 page = json.artboards[idx];
-             }
-             var layers = page.layers;
-             let resultss = layers.map(a => a.css);
-             
-             
-             var outColor = new Set([]);
-             var outFont = new Set([]);
-             for (let results of resultss) {
-                 if ((typeof results) === 'undefined') {
-                     continue;
-                 }
-                 for (let result of results) {
-                     if (result.indexOf('#') >= 0) {
-                         //// 抓取所有十六进制颜色
-                        result = result.match(/#(.*);/)[1];
-                        if (result.indexOf(',') >= 0) {
-                            let arr = result.split(',')
-                            for (let arrStr  of arr) {
-                                /// 457FFF 2%, #49B2FC 100%)
+            }
+            var layers = page.layers;
+            let resultss = layers.map(a => a.css);
 
-                                if (arrStr.indexOf('#') >= 0) {
-                                    // #49B2FC 100%)
-                                    result = result.match(/#(.*) /)[1];
-                                    outColor.add(result);
-                                } else {
-                                    // 457FFF 2%
-                                    outColor.add(result.split(' ')[0]);
-                                }
 
-                            }
-                        } else {
-
-                            outColor.add(result);
-                        }
-                     } else if (result.indexOf('font-size') >= 0) {
-                         //// 抓取所有字号 font-size: 40px;
-                         result = result.match(/font-size: (.*);/)[1];
-
-                        outFont.add(result);
-                     }
+            var outColor = new Set([]);
+            var outFont = new Set([]);
+            for (let results of resultss) {
+                if ((typeof results) === 'undefined') {
+                    continue;
                 }
-                
-             }
-             
-             return Array.from(outFont).join(' ')+'\n'+Array.from(outColor).join(' ');
-         } else {
-            
-         }
+                for (let result of results) {
+                    if (result.indexOf('#') >= 0) {
+                        if (result.startsWith('background:')) {
+                            let colorHex = result.match(/#(.*);/)[1];
+                            let color = 'background-color: #' + colorHex;
+                            let weexStr = '\n.bgc'+colorHex+' {\n\t'+ color+';\n}';
+
+                            outColor.add(weexStr);
+                        } else if (result.startsWith('color:')) {
+
+                            let colorHex = result.match(/color: #(.*);/)[1];
+                            let weexStr = '\n.c'+colorHex+' {\n\t'+ result+'\n}';
+                            outColor.add(weexStr);
+                        } else {
+                            continue;
+                        }
+                    } else if (result.indexOf('font-size') >= 0) {
+                        //// 抓取所有字号 font-size: 40px;
+                        result = result.match(/font-size: (.*)px;/)[1];
+                        let weexStr = '\n.f'+result+' {\n'+ '    font-size: '+result*2+'px;'+'\n}';
+                        outFont.add(weexStr);
+                    }
+                }
+
+            }
+
+            return Array.from(outFont).join(' ') + '\n' + Array.from(outColor).join(' ');
+        } else {
+
+        }
     } else if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
