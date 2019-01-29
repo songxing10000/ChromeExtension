@@ -60,7 +60,71 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
 /// 通过 domcument 拼接相应 字符串
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
-    if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
+    if (loadUrl.endsWith('index.html') ||
+    loadUrl.indexOf('index.html#artboard') >= 0) {
+         // 有可能是美工的UI图 Sketch
+         var str = document.documentElement.outerHTML;
+         str = str.match(/SMApp\((.*)\) }\);/)[1];
+         if (str.length > 50) {
+             /// 转换成json
+             var json = JSON.parse(str)
+             var page;
+             if (loadUrl.endsWith('index.html')) {
+                page = json.artboards[0];
+             } else if (loadUrl.indexOf('index.html#artboard') >= 0) {
+                var idx = loadUrl.split('index.html#artboard')[1]
+                page = json.artboards[idx];
+             }
+             var layers = page.layers;
+             let resultss = layers.map(a => a.css);
+             
+             
+             var outColor = new Set([]);
+             var outFont = new Set([]);
+             for (i = 0; i < resultss.length; i++) {
+                 let results = resultss[i];
+                 if ((typeof results) === 'undefined') {
+                     continue;
+                 }
+                 for (j = 0; j < results.length; j++) {
+                     let result = results[j];
+                     if (result.indexOf('#') >= 0) {
+                         //// 抓取所有十六进制颜色
+                        result = result.match(/#(.*);/)[1];
+                        if (result.indexOf(',') >= 0) {
+                            let arr = result.split(',')
+                            for (k = 0; k < arr.length; k++) {
+                                /// 457FFF 2%, #49B2FC 100%)
+                                let arrStr = arr[k];
+                                if (arrStr.indexOf('#') >= 0) {
+                                    // #49B2FC 100%)
+                                    result = result.match(/#(.*) /)[1];
+                                    outColor.add(result);
+                                } else {
+                                    // 457FFF 2%
+                                    outColor.add(result.split(' ')[0]);
+                                }
+
+                            }
+                        } else {
+
+                            outColor.add(result);
+                        }
+                     } else if (result.indexOf('font-size') >= 0) {
+                         //// 抓取所有字号 font-size: 40px;
+                         result = result.match(/font-size: (.*);/)[1];
+
+                        outFont.add(result);
+                     }
+                }
+                
+             }
+             
+             return Array.from(outFont).join(' ')+'\n'+Array.from(outColor).join(' ');
+         } else {
+            
+         }
+    } else if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
         let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
