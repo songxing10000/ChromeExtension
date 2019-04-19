@@ -1,10 +1,13 @@
 {
-  "name": "Get pages source",
+  "name": "十一岁的加重",
   "version": "1.0",
   "manifest_version": 2,
-  "description": "Get pages source from a popup",
+  "description": "个人开发专用",
   "browser_action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "<all_urls>"]
+  "permissions": ["contextMenus", "tabs", "<all_urls>"],
+  "background": { 
+    "scripts": ["menu.js"] 
+  }
 }
