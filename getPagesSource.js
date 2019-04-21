@@ -327,7 +327,68 @@ function DOMtoString(document_root) {
         document.getElementById('merge_request_title').value = des;
         document.getElementById('merge_request_description').value = des;
         return ''
-    }
+    } else if (loadUrl.indexOf('gateway-manager') >= 0) {
+        // 头参数
+        let headerStr = document.getElementsByClassName("ivu-table-tbody")[0].innerText;
+        // Body参数
+        let bodyStr = document.getElementsByClassName("ivu-table-tbody")[1].innerText;
+        // if (arr1.length <= 0 && arr2.length <= 0) {
+        //     return '未找到数据 打开data这一层试'
+        // }
+        let headerStrs = headerStr.split('\n')
+        let bodyStrs = bodyStr.split('\n')
+        // 参数名	
+        let paramName = headerStrs[0]
+        // 类型
+        let paramType = headerStrs[2]
+        // 参数说明
+        let paramDes = headerStrs[8]
+        // bodyStrs.forEach(function(value,index,array){
+        //     if (index % 9 == 0) {
+        //         console.log(array[index]);
+        //     } else if (index % 2 == 0) {
+        //         console.log(array[index]);
+        //     } else if (index % 8 == 0) {
+        //         // console.log("f", array[index]);
+        //     }
+        // })
+        let strOut = ''
+
+        for (let index = 0; index < arr1.length; index++) {
+
+            let str = arr1[index].innerText;
+
+            let strs = str.split('\n');
+            let propertyName = strs[0].split('\t')[0];
+            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
+            let propertyDes = strs[2];
+
+            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
+            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
+                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
+
+            strOut += line;
+
+        }
+        for (let index = 0; index < arr2.length; index++) {
+
+            let str = arr2[index].innerText;
+
+            let strs = str.split('\n');
+            let propertyName = strs[0].split('\t')[0];
+            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
+            let propertyDes = strs[2];
+
+            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
+            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
+                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
+
+            strOut += line;
+
+        }
+
+        return strOut
+    } 
     /// 根据网页抓取property
 
     var outstr = '';
