@@ -352,40 +352,11 @@ function DOMtoString(document_root) {
         //         // console.log("f", array[index]);
         //     }
         // })
-        let strOut = ''
-
-        for (let index = 0; index < arr1.length; index++) {
-
-            let str = arr1[index].innerText;
-
-            let strs = str.split('\n');
-            let propertyName = strs[0].split('\t')[0];
-            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
-            let propertyDes = strs[2];
-
-            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
-            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
-                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
-
-            strOut += line;
-
-        }
-        for (let index = 0; index < arr2.length; index++) {
-
-            let str = arr2[index].innerText;
-
-            let strs = str.split('\n');
-            let propertyName = strs[0].split('\t')[0];
-            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
-            let propertyDes = strs[2];
-
-            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
-            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
-                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
-
-            strOut += line;
-
-        }
+        
+        
+        var strOut = ''+getReturnString("pro")
+        strOut = '\n\n'+getReturnString("map")
+        
 
         return strOut
     } 
@@ -559,3 +530,63 @@ chrome.runtime.sendMessage({
     action: "getSource",
     source: DOMtoString(document)
 });
+/// 获取接口返回结果的字符串，type=pro为属性 type=map为map
+function getReturnString(type) {
+    let table = document.getElementsByClassName("zk-table__body zk-table--stripe")[0]
+        var strOut = ''
+        for (let row of table.rows) {
+            let cells = row.cells
+            for (let cellIdx = 0; cellIdx < cells.length; cellIdx++) {
+                let name = cells[0].innerText
+                var type = cells[1].innerText
+                let mustFill = cells[2].innerText
+                let defaultValue = cells[3].innerText
+                let des = cells[4].innerText
+                if (type === "string") {
+                    type = "String?"
+                } else if (type === "integer") {
+                    type = "Int?"
+                } else if (type === "number") {
+                    type = "Int?"
+                } else if (type === "object") {
+                    type = "???"
+                } else if (type === "array") {
+                    type = "[String]?"
+                }
+                // type <- map["type"]
+                if (des.length == 0) {
+                    if (type == "pro") {
+                        let line = "var " + name + ": " + type + "\n"
+                        strOut += line
+                    } else if (type == "map"){
+                        let line = name+" <- map[\""+name+"\"]"
+                        strOut += line
+                    }
+                    
+                } else {
+                    if (defaultValue.length == 0) {
+                        if (type == "pro") {
+                            let line = "///  "+des + "\nvar " + name + ": " + type+ "\n"
+                            strOut += line
+                        } else if (type == "map"){
+                            let line = name+" <- map[\""+name+"\"]"
+                            strOut += line
+                        }
+                        
+                    } else {
+                        if (type == "pro") {
+                            let line = "///  "+des+", 默认值： "+defaultValue + "\nvar " + name + ": " + type+ "\n"
+                            strOut += line
+                        } else if (type == "map"){
+                            let line = name+" <- map[\""+name+"\"]"
+                            strOut += line
+                        }
+                        
+                    }
+                }
+                
+            }
+            
+        }
+        return strOut
+}
