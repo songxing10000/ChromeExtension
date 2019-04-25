@@ -328,11 +328,11 @@ function DOMtoString(document_root) {
         document.getElementById('merge_request_description').value = des;
         return ''
     } else if (loadUrl.indexOf('gateway-manager') >= 0) {
-        let strOut = ''+getReturnString("pro")
-        let strOut2 = '\n\n'+getReturnString("map")
-        
+        let strOut = '' + getReturnString("pro")
+        let strOut2 = '\n\n' + getReturnString("map")
+        // 这里得分开写，不然只能出来一个，坑
         return strOut + strOut2
-    } 
+    }
     /// 根据网页抓取property
 
     var outstr = '';
@@ -506,67 +506,64 @@ chrome.runtime.sendMessage({
 /// 获取接口返回结果的字符串，actionType=pro为属性 actionType=map为map
 function getReturnString(actionType) {
     let table = document.getElementsByClassName("zk-table__body zk-table--stripe")[0]
-        let strOut = ''
-        
-        for (let row of table.rows) {
-            let cells = row.cells
-                let name = cells[0].innerText
-                
-                var type = cells[1].innerText
-                let mustFill = cells[2].innerText
-                let defaultValue = cells[3].innerText
-                let des = cells[4].innerText
-                if (type === "string") {
-                    type = "String?"
-                } else if (type === "integer") {
-                    type = "Int?"
-                } else if (type === "number") {
-                    type = "Int?"
-                } else if (type === "object") {
-                    type = "???"
-                } else if (type === "array") {
-                    type = "[String]?"
-                }
-                // type <- map["type"]
+    let strOut = ''
 
-                if (des.length == 0) {
-                    
-                    if (actionType == "pro") {
-                        let line = "var " + name + ": " + type + "\n"
-                        strOut += line
-
-                    } else if (actionType == "map"){
-                        let line = name+" <- map[\""+name+"\"]\n"
-                        strOut += line
-
-                    }
-                    
-                } else {
-                    
-
-                    if (defaultValue.length == 0) {
-                        if (actionType == "pro") {
-                            let line = "///  "+des + "\nvar " + name + ": " + type+ "\n"
-                            strOut += line
-                        } else if (actionType == "map"){
-                            let line = name+" <- map[\""+name+"\"]\n"
-                            strOut += line
-                        }
-                        
-                    } else {
-                        if (actionType == "map"){
-                            let line = name+" <- map[\""+name+"\"]\n"
-                            strOut += line
-                        } else {
-                            console.log("===");
-                            let line = "///  "+des+ "\nvar " + name + ": " + type+ "\n"
-                            strOut += line
-                        }
-                        
-                    }
-                }
-            
+    for (let row of table.rows) {
+        let cells = row.cells
+        let name = cells[0].innerText
+        var type = cells[1].innerText
+        let mustFill = cells[2].innerText
+        let defaultValue = cells[3].innerText
+        let des = cells[4].innerText
+        if (type === "string") {
+            type = "String?"
+        } else if (type === "integer") {
+            type = "Int?"
+        } else if (type === "number") {
+            type = "Int?"
+        } else if (type === "object") {
+            type = "???"
+        } else if (type === "array") {
+            type = "[String]?"
         }
-        console.log(strOut);
-        return strOut
+
+        if (des.length == 0) {
+
+            if (actionType == "pro") {
+                let line = "var " + name + ": " + type + "\n"
+                strOut += line
+
+            } else if (actionType == "map") {
+                let line = name + " <- map[\"" + name + "\"]\n"
+                strOut += line
+
+            }
+
+        } else {
+
+
+            if (defaultValue.length == 0) {
+                if (actionType == "pro") {
+                    let line = "///  " + des + "\nvar " + name + ": " + type + "\n"
+                    strOut += line
+                } else if (actionType == "map") {
+                    let line = name + " <- map[\"" + name + "\"]\n"
+                    strOut += line
+                }
+
+            } else {
+                if (actionType == "map") {
+                    let line = name + " <- map[\"" + name + "\"]\n"
+                    strOut += line
+                } else {
+                    console.log("===");
+                    let line = "///  " + des + "\nvar " + name + ": " + type + "\n"
+                    strOut += line
+                }
+
+            }
+        }
+
+    }
+    return strOut
 }
