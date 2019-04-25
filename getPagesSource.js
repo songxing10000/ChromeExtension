@@ -328,36 +328,9 @@ function DOMtoString(document_root) {
         document.getElementById('merge_request_description').value = des;
         return ''
     } else if (loadUrl.indexOf('gateway-manager') >= 0) {
-        // 头参数
-        let headerStr = document.getElementsByClassName("ivu-table-tbody")[0].innerText;
-        // Body参数
-        let bodyStr = document.getElementsByClassName("ivu-table-tbody")[1].innerText;
-        // if (arr1.length <= 0 && arr2.length <= 0) {
-        //     return '未找到数据 打开data这一层试'
-        // }
-        let headerStrs = headerStr.split('\n')
-        let bodyStrs = bodyStr.split('\n')
-        // 参数名	
-        let paramName = headerStrs[0]
-        // 类型
-        let paramType = headerStrs[2]
-        // 参数说明
-        let paramDes = headerStrs[8]
-        // bodyStrs.forEach(function(value,index,array){
-        //     if (index % 9 == 0) {
-        //         console.log(array[index]);
-        //     } else if (index % 2 == 0) {
-        //         console.log(array[index]);
-        //     } else if (index % 8 == 0) {
-        //         // console.log("f", array[index]);
-        //     }
-        // })
-        
-        
-        var strOut = ''+getReturnString("pro")
+        let strOut = ''+getReturnString("pro")
         strOut = '\n\n'+getReturnString("map")
         
-
         return strOut
     } 
     /// 根据网页抓取property
@@ -530,14 +503,15 @@ chrome.runtime.sendMessage({
     action: "getSource",
     source: DOMtoString(document)
 });
-/// 获取接口返回结果的字符串，type=pro为属性 type=map为map
-function getReturnString(type) {
+/// 获取接口返回结果的字符串，actionType=pro为属性 actionType=map为map
+function getReturnString(actionType) {
     let table = document.getElementsByClassName("zk-table__body zk-table--stripe")[0]
-        var strOut = ''
+        let strOut = ''
+        
         for (let row of table.rows) {
             let cells = row.cells
-            for (let cellIdx = 0; cellIdx < cells.length; cellIdx++) {
                 let name = cells[0].innerText
+                
                 var type = cells[1].innerText
                 let mustFill = cells[2].innerText
                 let defaultValue = cells[3].innerText
@@ -554,39 +528,45 @@ function getReturnString(type) {
                     type = "[String]?"
                 }
                 // type <- map["type"]
+
                 if (des.length == 0) {
-                    if (type == "pro") {
+                    
+                    if (actionType == "pro") {
                         let line = "var " + name + ": " + type + "\n"
                         strOut += line
-                    } else if (type == "map"){
-                        let line = name+" <- map[\""+name+"\"]"
+
+                    } else if (actionType == "map"){
+                        let line = name+" <- map[\""+name+"\"]\n"
                         strOut += line
+
                     }
                     
                 } else {
+                    
+
                     if (defaultValue.length == 0) {
-                        if (type == "pro") {
+                        if (actionType == "pro") {
                             let line = "///  "+des + "\nvar " + name + ": " + type+ "\n"
                             strOut += line
-                        } else if (type == "map"){
-                            let line = name+" <- map[\""+name+"\"]"
+                        } else if (actionType == "map"){
+                            let line = name+" <- map[\""+name+"\"]\n"
                             strOut += line
                         }
                         
                     } else {
-                        if (type == "pro") {
-                            let line = "///  "+des+", 默认值： "+defaultValue + "\nvar " + name + ": " + type+ "\n"
+                        if (actionType == "pro") {
+                            console.log("222");
+                            let line = "///  "+des+ "\nvar " + name + ": " + type+ "\n"
                             strOut += line
-                        } else if (type == "map"){
-                            let line = name+" <- map[\""+name+"\"]"
+                        } else if (actionType == "map"){
+                            let line = name+" <- map[\""+name+"\"]\n"
                             strOut += line
                         }
                         
                     }
                 }
-                
-            }
             
         }
+        console.log(strOut);
         return strOut
 }
