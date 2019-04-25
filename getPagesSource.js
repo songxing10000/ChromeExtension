@@ -329,9 +329,9 @@ function DOMtoString(document_root) {
         return ''
     } else if (loadUrl.indexOf('gateway-manager') >= 0) {
         let strOut = ''+getReturnString("pro")
-        strOut = '\n\n'+getReturnString("map")
+        let strOut2 = '\n\n'+getReturnString("map")
         
-        return strOut
+        return strOut + strOut2
     } 
     /// 根据网页抓取property
 
@@ -554,12 +554,12 @@ function getReturnString(actionType) {
                         }
                         
                     } else {
-                        if (actionType == "pro") {
-                            console.log("222");
-                            let line = "///  "+des+ "\nvar " + name + ": " + type+ "\n"
-                            strOut += line
-                        } else if (actionType == "map"){
+                        if (actionType == "map"){
                             let line = name+" <- map[\""+name+"\"]\n"
+                            strOut += line
+                        } else {
+                            console.log("===");
+                            let line = "///  "+des+ "\nvar " + name + ": " + type+ "\n"
                             strOut += line
                         }
                         
