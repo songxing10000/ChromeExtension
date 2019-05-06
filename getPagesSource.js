@@ -52,6 +52,20 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
     } else if (outTypeStr === 'label') {
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
         return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet KYLabelTextFieldView *m_" + translatedStr + "View;"
+    } else if (outTypeStr === 'label-sw') {
+        let controlName = translatedStr.charAt(0).toUpperCase() + translatedStr.slice(1)
+        // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
+        return "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Label: UILabel!"+
+        "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Label: UILabel!"+
+        "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Btn: UIButton!"+
+        "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Btn: UIButton!"+
+        
+        "\n\nm_"+ translatedStr + "Btn.addTarget(self, action: #selector(on"+controlName+"BtnClick(btn:)), for: .touchUpInside)"+
+        "\n// MARK: - "+ willTranslateStr +" 按钮事件"+
+        "\n/// "+ willTranslateStr +" 按钮事件"+
+        "\nfunc on"+controlName+"BtnClick(btn: UIButton) {"+
+        "\n\n"+
+        "}"
     }
     return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 }
@@ -220,13 +234,15 @@ function DOMtoString(document_root) {
                 const translated = translatedArray[index];
 
                 str += translate(willTranslate, translated, 'str') + '\n'
-                label += translate(willTranslate, translated, 'label') + '\n'
+                str = ""
+                label += translate(willTranslate, translated, 'label-sw') + '\n'
             }
             return str + '\n' + label
         } else {
             // 一个单词 如，Daily trend chart
             let str = translate(willTranslateStr, translatedStr, 'str')
-            let label = translate(willTranslateStr, translatedStr, 'label')
+            str = ""
+            let label = translate(willTranslateStr, translatedStr, 'label-sw')
             return str + '\n' + '\n' + label
 
         }
