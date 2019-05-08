@@ -344,10 +344,30 @@ function DOMtoString(document_root) {
         document.getElementById('merge_request_description').value = des;
         return ''
     } else if (loadUrl.indexOf('gateway-manager') >= 0) {
-        let strOut = '' + getReturnString("pro")
+        /*
+      // MARK: 编辑部门 http://ult-gateway-manager.qyd.com/#/serviceManage/preview/827
+    /// 编辑部门 http://ult-gateway-manager.qyd.com/#/serviceManage/preview/827
+
+    let postEditDepartment = TSNetworkRequestMethod(method: .post, path: "enterprise/department/basic/modify", replace: "")
+      */
+        let tabUrl = document.URL
+        let apiName = document.getElementsByClassName("ivu-col ivu-col-span-12")[0].innerText.replace("接口名称：\n","")
+        let desStr =  "// MARK: "+apiName+" "+tabUrl+
+                    "\n/// " +apiName+" "+tabUrl
+                    
+        let methodTypeStr = document.getElementsByClassName("ivu-tag-text ivu-tag-color-white")[0].innerText
+        let apiURLStr = document.getElementsByClassName("ivu-col ivu-col-span-18")[0].innerText
+        var actionStr = apiURLStr.split("/enterprise/")[1].split("/")[2]
+        var actionDesStr = apiURLStr.split("/enterprise/")[1].split("/")[0]
+        actionStr = actionStr.charAt(0).toUpperCase() + actionStr.slice(1);
+        actionDesStr = actionDesStr.charAt(0).toUpperCase() + actionDesStr.slice(1);
+        let reqStr = "\nlet "+methodTypeStr+actionStr+actionDesStr+" = TSNetworkRequestMethod(method: ."+methodTypeStr+
+        ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: \"\")\n"
+        let strOut = '\n' + getReturnString("pro")
         let strOut2 = '\n\n' + getReturnString("map")
+        let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
-        return strOut + strOut2
+        return desStr+ +reqStr+srtOut3 + strOut + strOut2
     }
     /// 根据网页抓取property
 
@@ -519,8 +539,50 @@ chrome.runtime.sendMessage({
     action: "getSource",
     source: DOMtoString(document)
 });
+function getParaString() {
+    // 入参
+    let table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
+
+    let strOut = '/// - Parameters:\n'
+    for (let row of table.rows) {
+        let cells = row.cells
+        let name = cells[0].innerText
+        var type = cells[1].innerText
+        /// 是
+        let mustFill = cells[2].innerText
+        /// 示例值
+        let exampleValue = cells[3].innerText
+        let des = cells[4].innerText
+        if (type === "string") {
+            type = "String?"
+        } else if (type === "integer") {
+            type = "Int?"
+        } else if (type === "number") {
+            type = "Int?"
+        } else if (type === "object") {
+            type = "???"
+        } else if (type === "array") {
+            type = "[String]?"
+        }
+        if (mustFill === "是") {
+            type = type.replace("?", "")
+        }
+        
+// ///   - name: 部门名称
+                    let line = "///   - "  + name + ": " + des + "\n"
+                    strOut += line
+         
+
+    }
+    return strOut
+
+}
 /// 获取接口返回结果的字符串，actionType=pro为属性 actionType=map为map
 function getReturnString(actionType) {
+    
+
+
+    /// 返回数据
     let table = document.getElementsByClassName("zk-table__body zk-table--stripe")[0]
     let strOut = ''
 

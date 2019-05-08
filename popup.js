@@ -10,7 +10,11 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     } else if (url.indexOf('translate.google.cn') >= 0) {
       message.innerText = request.source;
-    } else if (url.indexOf('weex.json') >= 0) {
+    } else if (url.indexOf('gateway-manager') >= 0) {
+      
+      message.innerText = request.source;
+
+  } else if (url.indexOf('weex.json') >= 0) {
       if (request.source.indexOf('{"page') >= 0) {
         message.innerText = 'decrypted'
         return;
