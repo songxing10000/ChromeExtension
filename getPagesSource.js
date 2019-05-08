@@ -363,11 +363,12 @@ function DOMtoString(document_root) {
         actionDesStr = actionDesStr.charAt(0).toUpperCase() + actionDesStr.slice(1);
         let reqStr = "\nlet "+methodTypeStr+actionStr+actionDesStr+" = TSNetworkRequestMethod(method: ."+methodTypeStr+
         ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: \"\")\n"
+        console.log(reqStr);
         let strOut = '\n' + getReturnString("pro")
         let strOut2 = '\n\n' + getReturnString("map")
         let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
-        return desStr+ +reqStr+srtOut3 + strOut + strOut2
+        return desStr +reqStr+srtOut3 + strOut + strOut2
     }
     /// 根据网页抓取property
 
@@ -540,6 +541,9 @@ chrome.runtime.sendMessage({
     source: DOMtoString(document)
 });
 function getParaString() {
+    if (document.getElementsByClassName("ivu-table-body").length <2) {
+        return ""
+    }
     // 入参
     let table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
 
