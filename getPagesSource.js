@@ -352,8 +352,7 @@ function DOMtoString(document_root) {
       */
         let tabUrl = document.URL
         let apiName = document.getElementsByClassName("ivu-col ivu-col-span-12")[0].innerText.replace("接口名称：\n","")
-        let desStr =  "// MARK: "+apiName+" "+tabUrl+
-                    "\n/// " +apiName+" "+tabUrl
+        let desStr =  "// MARK: "+apiName+ "\n/// " +apiName+" "+tabUrl
                     
         let methodTypeStr = document.getElementsByClassName("ivu-tag-text ivu-tag-color-white")[0].innerText
         let apiURLStr = document.getElementsByClassName("ivu-col ivu-col-span-18")[0].innerText
