@@ -1,14 +1,20 @@
 
 /**
- *  document.getElementById('merge_request_title')
-    document.getElementById('merge_request_description')
-    document.getElementsByClassName('commit-row-message')
-    document.getElementsByClassName('commit-row-message')[2].innerText
-    document.getElementsByClassName('commit-row-message')[1].innerText
-    document.getElementsByClassName('commit-row-message')[0].innerText
-    "Merge branch 'master' of "
- * 
- * */
+ * 只把首字母进行大写，其余字字符串不改变之前的大小写样式
+ * @param {string} str 
+ */
+function upperCaseFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+
+}
+/**
+ * 只把首字母进行小写，其余字字符串不改变之前的大小写样式
+ * @param {string} str 
+ */
+function lowerCaseFirstLetter(str) {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+
+}
 //定义一个比较器
 function compare(propertyName) {
     return function (object1, object2) {
@@ -31,21 +37,21 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
         /// 如 曾经  被翻译 成 once
         translatedStr = array[0]
         /// 再来一次首字母小写
-        translatedStr = translatedStr.charAt(0).toLowerCase() + translatedStr.slice(1);
+        translatedStr = lowerCaseFirstLetter(translatedStr)
     } else {
         let str = ''
         for (let index = 0; index < array.length; index++) {
             const element = array[index];
             if (index == 0) {
                 // 首字母小写
-                str += element.charAt(0).toLowerCase() + element.slice(1);
+                str += lowerCaseFirstLetter(element)
             } else {
                 // 首字母大写
-                str += element.charAt(0).toUpperCase() + element.slice(1);
+                str += upperCaseFirstLetter(element)
             }
         }
         /// 再来一次首字母小写
-        translatedStr = str.charAt(0).toLowerCase() + str.slice(1);
+        translatedStr = lowerCaseFirstLetter(str);
     }
     if (outTypeStr === 'str') {
         return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
@@ -53,7 +59,7 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
         return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet KYLabelTextFieldView *m_" + translatedStr + "View;"
     } else if (outTypeStr === 'label-sw') {
-        let controlName = translatedStr.charAt(0).toUpperCase() + translatedStr.slice(1)
+        let controlName = upperCaseFirstLetter(translatedStr)
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
         return "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Label: UILabel!"+
         "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Label: UILabel!"+
@@ -353,15 +359,46 @@ function DOMtoString(document_root) {
         let tabUrl = document.URL
         let apiName = document.getElementsByClassName("ivu-col ivu-col-span-12")[0].innerText.replace("接口名称：\n","")
         let desStr =  "// MARK: "+apiName+ "\n/// " +apiName+" "+tabUrl
-                    
+        /**
+         * 请求方式 get post
+         */           
         let methodTypeStr = document.getElementsByClassName("ivu-tag-text ivu-tag-color-white")[0].innerText
         let apiURLStr = document.getElementsByClassName("ivu-col ivu-col-span-18")[0].innerText
-        var actionStr = apiURLStr.split("/enterprise/")[1].split("/")[2]
-        var actionDesStr = apiURLStr.split("/enterprise/")[1].split("/")[0]
-        actionStr = actionStr.charAt(0).toUpperCase() + actionStr.slice(1);
-        actionDesStr = actionDesStr.charAt(0).toUpperCase() + actionDesStr.slice(1);
+        // /enterprise/manage/list这样写获取不到操作类型，如edit delete save get 等
+        /**
+         * 操作类型 如 enterprise/announcement/employee/get 中的get
+         */
+        var actionStr = ''
+        // 考虑没有  /enterprise/ 咋办
+        let firstKeyStr = "/enterprise/"
+        let secondKeyStr = "/api/v3/"
+        var findKeyStr = ''
+        if (apiURLStr.includes(firstKeyStr)) {
+            findKeyStr = firstKeyStr
+        } else if (apiURLStr.includes(secondKeyStr)) {
+            findKeyStr = secondKeyStr
+        } else {
+            console.error("url异常情况！！！");
+            
+        }
+        var sps = apiURLStr.split(findKeyStr)[1].split("/")
+        if (sps.length >= 3) {
+            actionStr = apiURLStr.split(findKeyStr)[1].split("/")[2]
+            actionStr = upperCaseFirstLetter(actionStr);
+            
+        }
+
+        var actionDesStr = apiURLStr.split(findKeyStr)[1].split("/")[0]
+        actionDesStr = upperCaseFirstLetter(actionDesStr);
+        // getManage 这种太短了，再获取后面的
+        if (actionDesStr.length <= 9) {
+            var actionDesStr2 = apiURLStr.split(findKeyStr)[1].split("/")[1]
+            actionDesStr = upperCaseFirstLetter(actionDesStr2);
+        }
+
+        console.log('zz'+actionDesStr);
         let reqStr = "\nlet "+methodTypeStr+actionStr+actionDesStr+" = TSNetworkRequestMethod(method: ."+methodTypeStr+
-        ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: \"\")\n"
+        ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: nil)\n"
         console.log(reqStr);
         let strOut = '\n' + getReturnString("pro")
         let strOut2 = '\n\n' + getReturnString("map")
