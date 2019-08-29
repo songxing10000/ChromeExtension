@@ -577,13 +577,17 @@ chrome.runtime.sendMessage({
     source: DOMtoString(document)
 });
 function getParaString() {
-    if (document.getElementsByClassName("ivu-table-body").length <2) {
+    if (document.getElementsByClassName("ivu-table-body").length < 1) {
+        console.error("没有找到参数信息");
         return ""
     }
-    // 入参
-    let table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
 
-    let strOut = '/// - Parameters:\n'
+    // 入参
+    let table = document.getElementsByClassName("ivu-table-body")[0].getElementsByTagName("table")[0]
+    if (document.getElementsByClassName("ivu-table-body").length > 1) {
+        table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
+    }
+    let strOut = '///\n/// - Parameters:\n'
     for (let row of table.rows) {
         let cells = row.cells
         let name = cells[0].innerText
@@ -609,7 +613,7 @@ function getParaString() {
         }
         
 // ///   - name: 部门名称
-                    let line = "///   - "  + name + ": " + des + "\n"
+                    let line = "/// - "  + name + ": " + des + "\n"
                     strOut += line
          
 
