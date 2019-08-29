@@ -81,7 +81,8 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
 function DOMtoString(document_root) {
     var loadUrl = document.URL;
     if (loadUrl.endsWith('index.html') ||
-        loadUrl.indexOf('index.html#artboard') >= 0) {
+        loadUrl.indexOf('index.html#artboard') >= 0 ||
+        loadUrl.indexOf('#artboard') >= 0) {
         // 有可能是美工的UI图 Sketch
         var str = document.documentElement.outerHTML;
         str = str.match(/SMApp\((.*)\) }\);/)[1];
@@ -91,11 +92,22 @@ function DOMtoString(document_root) {
             var page;
             if (loadUrl.endsWith('index.html')) {
                 page = json.artboards[0];
+            } else if (loadUrl.indexOf('#artboard') >= 0) {
+                var idx = loadUrl.split('#artboard')[1]
+                page = json.artboards[idx];
             } else if (loadUrl.indexOf('index.html#artboard') >= 0) {
                 var idx = loadUrl.split('index.html#artboard')[1]
                 page = json.artboards[idx];
             }
-            var layers = page.layers;
+
+            var layers = [];
+            console.log(page);
+            
+            if (typeof page.layers !== 'undefined') { 
+                
+                layers = page.layers
+            }
+
             let resultss = layers.map(a => a.css);
 
 
