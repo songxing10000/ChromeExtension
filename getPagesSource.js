@@ -604,6 +604,11 @@ function getParaString() {
     if (document.getElementsByClassName("ivu-table-body").length > 1) {
         /// 第二个目前场景大多数是Authorization
         table = document.getElementsByClassName("ivu-table-body")[0].getElementsByTagName("table")[0]
+        // 很多时候， 有些人写接口文档不规范，一会在第一个，一会儿在第二
+        let row0Str = table.rows[0].cells[0].innerText
+        if (row0Str == 'Authorization') {
+            table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
+        }
     }
     let strOut = '///\n/// - Parameters:\n'
     for (let row of table.rows) {
@@ -670,11 +675,17 @@ function getReturnString(actionType) {
         if (des.length == 0) {
 
             if (actionType == "pro") {
-                let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0检测到三级元素，得自己手动复现为另外一个moddel\n'
+                if (name.length > 0) {
+                    line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                }
                 strOut += line
 
             } else if (actionType == "map") {
-                let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
+                let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0检测到三级元素，得自己手动复现为另外一个moddel\n'
+                if (name.length > 0) {
+                    line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
+                }
                 strOut += line
 
             }
@@ -684,9 +695,13 @@ function getReturnString(actionType) {
 
             if (defaultValue.length == 0) {
                 if (actionType == "pro") {
-                    let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                    let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0检测到三级元素，得自己手动复现为另外一个moddel\n'
+                    if (name.length > 0) {
+                        line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                    }
                     strOut += line
                 } else if (actionType == "map") {
+
                     let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
                     strOut += line
                 }
@@ -696,8 +711,10 @@ function getReturnString(actionType) {
                     let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
                     strOut += line
                 } else {
-                    console.log("===");
-                    let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                    let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0检测到三级元素，得自己手动复现为另外一个moddel\n'
+                    if (name.length > 0) {
+                        line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
+                    }
                     strOut += line
                 }
 
@@ -705,5 +722,6 @@ function getReturnString(actionType) {
         }
 
     }
+    
     return strOut
 }
