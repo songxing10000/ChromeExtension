@@ -100,13 +100,8 @@ function DOMtoString(document_root) {
                 page = json.artboards[idx];
             }
 
-            var layers = [];
-            console.log(page);
+            var layers =  page.layers
             
-            if (typeof page.layers !== 'undefined') { 
-                
-                layers = page.layers
-            }
 
             let resultss = layers.map(a => a.css);
 
