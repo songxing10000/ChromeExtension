@@ -395,16 +395,33 @@ function DOMtoString(document_root) {
             var actionDesStr2 = apiURLStr.split(findKeyStr)[1].split("/")[1]
             actionDesStr = upperCaseFirstLetter(actionDesStr2);
         }
-
+        // js 字符串 拼接 插入多个空格   \xa0\xa0\xa0\xa0\xa0\xa0\xa0
         console.log('zz'+actionDesStr);
         let reqStr = "\nlet "+methodTypeStr+actionStr+actionDesStr+" = TSNetworkRequestMethod(method: ."+methodTypeStr+
         ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: nil)\n"
-        console.log(reqStr);
-        let strOut = '\n' + getReturnString("pro")
+
+        var baseModelStr = 
+        '\nimport ObjectMapper\n\n' +
+        'class KY???ResModel: KYBaseModel {\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0var data : KY???DataModel?\n\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) {\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.init(map: map)\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0override func mapping(map: Map) {\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.mapping(map: map)\n\n'+       
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0data <- map["data"]\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n'+
+        '}\n\nclass KY???DataModel: Mappable {\n'
+        let strOut = baseModelStr + '\n' + getReturnString("pro")
+        let secModelStr = 
+        '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) { }\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0init() {\n\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n'+
+        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0func mapping(map: Map) {\n'
         let strOut2 = '\n\n' + getReturnString("map")
         let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
-        return desStr +reqStr+srtOut3 + strOut + strOut2
+        return desStr +reqStr+srtOut3 + strOut + secModelStr + strOut2 +'\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
     }
     /// 根据网页抓取property
 
@@ -585,7 +602,8 @@ function getParaString() {
     // 入参
     let table = document.getElementsByClassName("ivu-table-body")[0].getElementsByTagName("table")[0]
     if (document.getElementsByClassName("ivu-table-body").length > 1) {
-        table = document.getElementsByClassName("ivu-table-body")[1].getElementsByTagName("table")[0]
+        /// 第二个目前场景大多数是Authorization
+        table = document.getElementsByClassName("ivu-table-body")[0].getElementsByTagName("table")[0]
     }
     let strOut = '///\n/// - Parameters:\n'
     for (let row of table.rows) {
@@ -613,7 +631,7 @@ function getParaString() {
         }
         
 // ///   - name: 部门名称
-                    let line = "/// - "  + name + ": " + des + "\n"
+                    let line = "/// \xa0\xa0\xa0\xa0\xa0\xa0\xa0- "  + name + ": " + des + "\n"
                     strOut += line
          
 
@@ -652,11 +670,11 @@ function getReturnString(actionType) {
         if (des.length == 0) {
 
             if (actionType == "pro") {
-                let line = "var " + name + ": " + type + "\n"
+                let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
                 strOut += line
 
             } else if (actionType == "map") {
-                let line = name + " <- map[\"" + name + "\"]\n"
+                let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
                 strOut += line
 
             }
@@ -666,20 +684,20 @@ function getReturnString(actionType) {
 
             if (defaultValue.length == 0) {
                 if (actionType == "pro") {
-                    let line = "///  " + des + "\nvar " + name + ": " + type + "\n"
+                    let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
                     strOut += line
                 } else if (actionType == "map") {
-                    let line = name + " <- map[\"" + name + "\"]\n"
+                    let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
                     strOut += line
                 }
 
             } else {
                 if (actionType == "map") {
-                    let line = name + " <- map[\"" + name + "\"]\n"
+                    let line = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + name + " <- map[\"" + name + "\"]\n"
                     strOut += line
                 } else {
                     console.log("===");
-                    let line = "///  " + des + "\nvar " + name + ": " + type + "\n"
+                    let line = "\xa0\xa0\xa0\xa0\xa0\xa0\xa0///  " + des + "\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0var " + name + ": " + type + "\n"
                     strOut += line
                 }
 
