@@ -229,13 +229,33 @@ function DOMtoString(document_root) {
     } else if (loadUrl.indexOf('weex.json') >= 0) {
         let text = document.childNodes[0].innerText
         return text
-    } else if (loadUrl.indexOf('translate.google.cn') >= 0) {
+    } else if (loadUrl.includes('translate.google.cn') ||
+                loadUrl.includes('fanyi.baidu.com') ||
+                loadUrl.includes('fanyi.youdao.com')) {
         /// 考虑  's  Guarantor's vehicle information, guarantor's real estate information
         /// 谷歌翻译处理
         /// 待翻译的字符串
-        var willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML;
+        var willTranslateStr = '';
+        if (loadUrl.includes('translate.google.cn')) {
+            // 谷歌翻译
+            willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML
+        } else if (loadUrl.includes('fanyi.baidu.com')) {
+            // 百度翻译
+            willTranslateStr = document.getElementsByClassName("ordinary-output source-output")[0].innerText
+        } else if (loadUrl.includes('fanyi.youdao.com')) {
+            willTranslateStr = document.getElementsByClassName('input__original__area')[0].innerHTML
+        }
         /// 翻译后的字符串 ,如  Daily trend chart
-        var translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
+        var translatedStr = ''
+        if (loadUrl.includes('translate.google.cn')) {
+            // 谷歌翻译
+            translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
+        } else if (loadUrl.includes('fanyi.baidu.com')) {
+            // 百度翻译
+            translatedStr = document.getElementsByClassName("ordinary-output target-output clearfix")[0].innerText
+        } else if (loadUrl.includes('fanyi.youdao.com')) {
+            translatedStr = document.getElementsByClassName('input__target__text')[0].innerText
+        }
         if (willTranslateStr.indexOf("、") >= 0) {
             // 多个单词 如，Daily trend chart, monthly trend chart
             let willTranslateArray = willTranslateStr.split("、")
