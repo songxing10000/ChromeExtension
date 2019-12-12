@@ -449,6 +449,15 @@ function DOMtoString(document_root) {
         let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
         return desStr +reqStr+srtOut3 + strOut + secModelStr + strOut2 +'\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
+    } else if (loadUrl.indexOf('.net/zentao/bug') >= 0 ) {
+        var bugTitle = document.getElementsByClassName('text')[0].innerText
+        let strs = bugTitle.split('】')
+        if(strs.length > 1) {
+            bugTitle = strs[1]
+        } else {
+            bugTitle = strs[0]
+        }
+        return 'fix ' + loadUrl + ' ' + bugTitle;
     }
     /// 根据网页抓取property
 
