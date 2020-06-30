@@ -182,7 +182,8 @@ function DOMtoString(document_root) {
         } else {
 
         }
-    } else if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
+    } 
+    else if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
         let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
@@ -268,14 +269,14 @@ function DOMtoString(document_root) {
 
                 str += translate(willTranslate, translated, 'str') + '\n'
                 str = ""
-                label += translate(willTranslate, translated, 'label-sw') + '\n'
+                label += translate(willTranslate, translated, 'label') + '\n'
             }
             return str + '\n' + label
         } else {
             // 一个单词 如，Daily trend chart
             let str = translate(willTranslateStr, translatedStr, 'str')
             str = ""
-            let label = translate(willTranslateStr, translatedStr, 'label-sw')
+            let label = translate(willTranslateStr, translatedStr, 'label')
             return str + '\n' + '\n' + label
 
         }
@@ -283,7 +284,8 @@ function DOMtoString(document_root) {
         /// 日趋势图
         return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 
-    } else if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
+    } 
+    else if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
         /// host dns 处理
         var cells = document.getElementsByClassName('ReListCent ReLists bor-b1s clearfix')
         var cellIdx;
@@ -359,24 +361,9 @@ function DOMtoString(document_root) {
         }
 
         return outStr;
-    } else if (loadUrl.indexOf('/merge_requests/new') >= 0) {
-        /// 提交代码时 ，自动抓提交记录文字
-        var msgs = document.getElementsByClassName('commit-row-message');
-
-        var msgStrs = []
-        for (i = 0; i < msgs.length; i++) {
-            var msgStr = document.getElementsByClassName('commit-row-message')[i].innerText;
-            if (msgStr != 'Merge branch \'master\' of ') {
-                msgStrs.push(msgStr)
-            }
-        }
-        var des = msgStrs.join('、')
-        document.getElementById('merge_request_title').innerText = des;
-        document.getElementById('merge_request_description').innerText = des;
-        document.getElementById('merge_request_title').value = des;
-        document.getElementById('merge_request_description').value = des;
-        return ''
-    } else if (loadUrl.indexOf('gateway-manager') >= 0) {
+    } 
+    
+    else if (loadUrl.indexOf('gateway-manager') >= 0) {
         /*
       // MARK: 编辑部门 http://ult-gateway-manager.qyd.com/#/serviceManage/preview/827
     /// 编辑部门 http://ult-gateway-manager.qyd.com/#/serviceManage/preview/827
@@ -449,22 +436,13 @@ function DOMtoString(document_root) {
         let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
         return desStr +reqStr+srtOut3 + strOut + secModelStr + strOut2 +'\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
-    } else if (loadUrl.indexOf('.net/zentao/bug') >= 0 ) {
-        var bugTitle = document.getElementsByClassName('text')[0].innerText
-        let strs = bugTitle.split('】')
-        if(strs.length > 1) {
-            bugTitle = strs[1]
-        } else {
-            bugTitle = strs[0]
-        }
-        return 'fix ' + loadUrl + ' ' + bugTitle;
-    }
+    } 
     /// 根据网页抓取property
 
     var outstr = '';
     var tables = document.getElementsByTagName('table');
     /// 请求路径	{base_url}/credit/personal/contactdetail/{ssoId}
-    var url = document.getElementsByTagName("table")[0].rows[3].innerText
+    var url = document.getElementsByTagName("table")[0].rows[3].innerText;
     url = url.split('{base_url}/')[1]
     var api = url;
     if (url.indexOf('{') != -1) {
