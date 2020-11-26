@@ -57,7 +57,7 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
         return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
     } else if (outTypeStr === 'label') {
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
-        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet KYLabelTextFieldView *m_" + translatedStr + "View;"
+        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UITextField *m_" + translatedStr + "TF;"
     } else if (outTypeStr === 'label-sw') {
         let controlName = upperCaseFirstLetter(translatedStr)
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
@@ -438,7 +438,13 @@ function DOMtoString(document_root) {
         return desStr +reqStr+srtOut3 + strOut + secModelStr + strOut2 +'\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
     } 
     /// 根据网页抓取property
+    var df = document.querySelector("body > div > div > div.col-xs-16.col-xs-offset-8.main > div.search-content > ul");
+for (const dff in df) {
+    console.log(df.length);
+}
 
+
+return 'ff';
     var outstr = '';
     var tables = document.getElementsByTagName('table');
     /// 请求路径	{base_url}/credit/personal/contactdetail/{ssoId}
