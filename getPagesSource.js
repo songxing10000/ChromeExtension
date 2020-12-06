@@ -57,7 +57,7 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
         return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
     } else if (outTypeStr === 'label') {
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
-        return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UITextField *m_" + translatedStr + "TF;"
+        return "/// " + willTranslateStr + "\n" + "@property (nonatomic, weak) UIButton *m_" + translatedStr + "Btn;"
     } else if (outTypeStr === 'label-sw') {
         let controlName = upperCaseFirstLetter(translatedStr)
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
