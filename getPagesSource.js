@@ -61,17 +61,17 @@ function translate(willTranslateStr, translatedStr, outTypeStr) {
     } else if (outTypeStr === 'label-sw') {
         let controlName = upperCaseFirstLetter(translatedStr)
         // return "/// " + willTranslateStr + "\n" + "@property (weak, nonatomic) IBOutlet UILabel *m_" + translatedStr + "Label;"
-        return "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Label: UILabel!"+
-        "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Label: UILabel!"+
-        "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Btn: UIButton!"+
-        "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Btn: UIButton!"+
-        
-        "\n\nm_"+ translatedStr + "Btn.addTarget(self, action: #selector(on"+controlName+"BtnClick(btn:)), for: .touchUpInside)"+
-        "\n// MARK: - "+ willTranslateStr +" 按钮事件"+
-        "\n/// "+ willTranslateStr +" 按钮事件"+
-        "\nfunc on"+controlName+"BtnClick(btn: UIButton) {"+
-        "\n\n"+
-        "}"
+        return "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Label: UILabel!" +
+            "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Label: UILabel!" +
+            "\n/// " + willTranslateStr + "\n" + "var m_" + translatedStr + "Btn: UIButton!" +
+            "\n/// " + willTranslateStr + "\n" + "@IBOutlet weak var m_" + translatedStr + "Btn: UIButton!" +
+
+            "\n\nm_" + translatedStr + "Btn.addTarget(self, action: #selector(on" + controlName + "BtnClick(btn:)), for: .touchUpInside)" +
+            "\n// MARK: - " + willTranslateStr + " 按钮事件" +
+            "\n/// " + willTranslateStr + " 按钮事件" +
+            "\nfunc on" + controlName + "BtnClick(btn: UIButton) {" +
+            "\n\n" +
+            "}"
     }
     return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
 }
@@ -100,8 +100,8 @@ function DOMtoString(document_root) {
                 page = json.artboards[idx];
             }
 
-            var layers =  page.layers
-            
+            var layers = page.layers
+
 
             let resultss = layers.map(a => a.css);
 
@@ -182,7 +182,7 @@ function DOMtoString(document_root) {
         } else {
 
         }
-    } 
+    }
     else if (loadUrl.includes('91hiwork')) {
         let tabUrl = document.URL
         // 接口名称 获得推荐商品和课程
@@ -191,18 +191,42 @@ function DOMtoString(document_root) {
         let apiMethod = document.getElementsByClassName('colValue tag-method')[0].innerText;
         // /api/shortvideo/getproductandcourse
         let api = document.getElementsByClassName('colValue')[3].innerText;
-        let apiStr = api.substr(0, 1) ===   '/' ? api.slice(1) : api;
+        let apiStr = api.substr(0, 1) === '/' ? api.slice(1) : api;
         let apiMethodStr = apiMethod === 'POST' ? "HttpRequestTypePost" : "HttpRequestTypeGet";
+        let dict = []
+        let body = document.getElementsByTagName('table')[1];
+        if ((typeof body) !== 'undefined') {
+            let rows = document.getElementsByTagName('table')[1].rows;
+            if ((typeof rows) !== 'undefined') {
+                for (let row of rows) {
+                    let propertyName = row.cells[0].innerText;
+                    if (propertyName === '参数名称') continue;
+                    let propertyDes = row.cells[4].innerText;
+                    dict[propertyName] = propertyDes;
+                }
+
+            }
+
+        }
+        //    
+        let proDesStr = ''
+        let methodParamStr = ''
+        let paramDictStr = 'NSDictionary *dict =\n\xa0\xa0\xa0\xa0@{\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0@"workId": MY_WORK_ID,'
+        for (var key in dict) {
+            var item = dict[key];
+            proDesStr += '\n/// @param ' + key + ' ' + item
+            methodParamStr += ' ' + key + ':(NSString *)' + key
+            paramDictStr += '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0@"' + key + '": (' + key + '.length > 0 ? ' + key + ' : @""),'
+            
+        }
+        
+
+        paramDictStr += '\n\xa0\xa0\xa0\xa0};'
         let strOut =
-            `/// ${apiCNName} ${tabUrl}
-            +(void)getRecommendedGoodsAndCoursesVideoid:(NSString *)videoid tagid:(NSString *)tagid failure:(void (^)(NSError *))failure success:(void (^)(id))success {
-                \xa0\xa0\xa0\xa0\xa0\xa0\xa0NSDictionary *dict = @{ };
-                \xa0\xa0\xa0\xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}"
-                          parameters:dict
-                                type:${apiMethodStr}
-                         companytype:HttpRequestCompanyTypeHilife
-                             success:success
-                             failure:failure];
+            `/// ${apiCNName} ${tabUrl}${proDesStr}
+            +(void)${methodParamStr} failure:(void (^)(NSError *))failure success:(void (^)(id))success {
+                \xa0\xa0\xa0\xa0${paramDictStr}
+                \xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}" parameters:dict type:${apiMethodStr} companytype:HttpRequestCompanyTypeHilife success:success failure:failure];
             }`;
         return strOut
     }
@@ -214,11 +238,11 @@ function DOMtoString(document_root) {
     let postEditDepartment = TSNetworkRequestMethod(method: .post, path: "enterprise/department/basic/modify", replace: "")
       */
         let tabUrl = document.URL
-        let apiName = document.getElementsByClassName("ivu-col ivu-col-span-12")[0].innerText.replace("接口名称：\n","")
-        let desStr =  "// MARK: "+apiName+ "\n/// " +apiName+" "+tabUrl
+        let apiName = document.getElementsByClassName("ivu-col ivu-col-span-12")[0].innerText.replace("接口名称：\n", "")
+        let desStr = "// MARK: " + apiName + "\n/// " + apiName + " " + tabUrl
         /**
          * 请求方式 get post
-         */           
+         */
         let methodTypeStr = document.getElementsByClassName("ivu-tag-text ivu-tag-color-white")[0].innerText
         let apiURLStr = document.getElementsByClassName("ivu-col ivu-col-span-18")[0].innerText
         // /enterprise/manage/list这样写获取不到操作类型，如edit delete save get 等
@@ -236,13 +260,13 @@ function DOMtoString(document_root) {
             findKeyStr = secondKeyStr
         } else {
             console.error("url异常情况！！！");
-            
+
         }
         var sps = apiURLStr.split(findKeyStr)[1].split("/")
         if (sps.length >= 3) {
             actionStr = apiURLStr.split(findKeyStr)[1].split("/")[2]
             actionStr = upperCaseFirstLetter(actionStr);
-            
+
         }
 
         var actionDesStr = apiURLStr.split(findKeyStr)[1].split("/")[0]
@@ -253,41 +277,41 @@ function DOMtoString(document_root) {
             actionDesStr = upperCaseFirstLetter(actionDesStr2);
         }
         // js 字符串 拼接 插入多个空格   \xa0\xa0\xa0\xa0\xa0\xa0\xa0
-        console.log('zz'+actionDesStr);
-        let reqStr = "\nlet "+methodTypeStr+actionStr+actionDesStr+" = TSNetworkRequestMethod(method: ."+methodTypeStr+
-        ", path: \""+apiURLStr.split(".com/")[1]+"\", replace: nil)\n"
+        console.log('zz' + actionDesStr);
+        let reqStr = "\nlet " + methodTypeStr + actionStr + actionDesStr + " = TSNetworkRequestMethod(method: ." + methodTypeStr +
+            ", path: \"" + apiURLStr.split(".com/")[1] + "\", replace: nil)\n"
 
-        var baseModelStr = 
-        '\nimport ObjectMapper\n\n' +
-        'class KY???ResModel: KYBaseModel {\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0var data : KY???DataModel?\n\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) {\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.init(map: map)\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0override func mapping(map: Map) {\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.mapping(map: map)\n\n'+       
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0data <- map["data"]\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n'+
-        '}\n\nclass KY???DataModel: Mappable {\n'
+        var baseModelStr =
+            '\nimport ObjectMapper\n\n' +
+            'class KY???ResModel: KYBaseModel {\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0var data : KY???DataModel?\n\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) {\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.init(map: map)\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0override func mapping(map: Map) {\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0super.mapping(map: map)\n\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0data <- map["data"]\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n' +
+            '}\n\nclass KY???DataModel: Mappable {\n'
         let strOut = baseModelStr + '\n' + getReturnString("pro")
-        let secModelStr = 
-        '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) { }\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0init() {\n\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n'+
-        '\xa0\xa0\xa0\xa0\xa0\xa0\xa0func mapping(map: Map) {\n'
+        let secModelStr =
+            '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0required init?(map: Map) { }\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0init() {\n\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n' +
+            '\xa0\xa0\xa0\xa0\xa0\xa0\xa0func mapping(map: Map) {\n'
         let strOut2 = '\n\n' + getReturnString("map")
         let srtOut3 = "\n\n" + getParaString() + "\n\n"
         // 这里得分开写，不然只能出来一个，坑
-        return desStr +reqStr+srtOut3 + strOut + secModelStr + strOut2 +'\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
-    } 
+        return desStr + reqStr + srtOut3 + strOut + secModelStr + strOut2 + '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
+    }
     /// 根据网页抓取property
     var df = document.querySelector("body > div > div > div.col-xs-16.col-xs-offset-8.main > div.search-content > ul");
-for (const dff in df) {
-    console.log(df.length);
-}
+    for (const dff in df) {
+        console.log(df.length);
+    }
 
 
-return 'ff';
+    return 'ff';
     var outstr = '';
     var tables = document.getElementsByTagName('table');
     /// 请求路径	{base_url}/credit/personal/contactdetail/{ssoId}
@@ -497,11 +521,11 @@ function getParaString() {
         if (mustFill === "是") {
             type = type.replace("?", "")
         }
-        
-// ///   - name: 部门名称
-                    let line = "/// \xa0\xa0\xa0\xa0\xa0\xa0\xa0- "  + name + ": " + des + "\n"
-                    strOut += line
-         
+
+        // ///   - name: 部门名称
+        let line = "/// \xa0\xa0\xa0\xa0\xa0\xa0\xa0- " + name + ": " + des + "\n"
+        strOut += line
+
 
     }
     return strOut
@@ -509,7 +533,7 @@ function getParaString() {
 }
 /// 获取接口返回结果的字符串，actionType=pro为属性 actionType=map为map
 function getReturnString(actionType) {
-    
+
 
 
     /// 返回数据
@@ -585,6 +609,6 @@ function getReturnString(actionType) {
         }
 
     }
-    
+
     return strOut
 }
