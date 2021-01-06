@@ -184,193 +184,28 @@ function DOMtoString(document_root) {
         }
     } 
     else if (loadUrl.includes('91hiwork')) {
+        let tabUrl = document.URL
         // 接口名称 获得推荐商品和课程
         let apiCNName = document.getElementsByClassName('ant-col-8 colName')[0].innerText;
         // POST
         let apiMethod = document.getElementsByClassName('colValue tag-method')[0].innerText;
         // /api/shortvideo/getproductandcourse
         let api = document.getElementsByClassName('colValue')[3].innerText;
-
-        
-        // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
-        // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
-        let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
-        let arr2 = document.getElementsByClassName('ant-table-row  ant-table-row-level-2');
-        if (arr1.length <= 0 && arr2.length <= 0) {
-            return '未找到数据 打开data这一层试'
-        }
-        let strOut = ''
-
-        for (let index = 0; index < arr1.length; index++) {
-
-            let str = arr1[index].innerText;
-
-            let strs = str.split('\n');
-            let propertyName = strs[0].split('\t')[0];
-            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
-            let propertyDes = strs[2];
-
-            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
-            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
-                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
-
-            strOut += line;
-
-        }
-        for (let index = 0; index < arr2.length; index++) {
-
-            let str = arr2[index].innerText;
-
-            let strs = str.split('\n');
-            let propertyName = strs[0].split('\t')[0];
-            let propertyType = strs[0].split('\t')[1] === 'string' ? 'NSString' : 'NSNumber';
-            let propertyDes = strs[2];
-
-            let copyOrStrong = propertyType === 'NSString' ? 'copy' : 'strong';
-            let line = "/// " + propertyDes + "\n" + "@property (nonatomic, " +
-                copyOrStrong + ') ' + propertyType + " *" + propertyName + ";\n"
-
-            strOut += line;
-
-        }
-
+        let apiStr = api.substr(0, 1) ===   '/' ? api.slice(1) : api;
+        let apiMethodStr = apiMethod === 'POST' ? "HttpRequestTypePost" : "HttpRequestTypeGet";
+        let strOut =
+            `/// ${apiCNName} ${tabUrl}
+            +(void)getRecommendedGoodsAndCoursesVideoid:(NSString *)videoid tagid:(NSString *)tagid failure:(void (^)(NSError *))failure success:(void (^)(id))success {
+                \xa0\xa0\xa0\xa0\xa0\xa0\xa0NSDictionary *dict = @{ };
+                \xa0\xa0\xa0\xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}"
+                          parameters:dict
+                                type:${apiMethodStr}
+                         companytype:HttpRequestCompanyTypeHilife
+                             success:success
+                             failure:failure];
+            }`;
         return strOut
-    } else if (loadUrl.indexOf('weex.json') >= 0) {
-        let text = document.childNodes[0].innerText
-        return text
-    } else if (loadUrl.includes('translate.google.cn') ||
-                loadUrl.includes('fanyi.baidu.com') ||
-                loadUrl.includes('fanyi.youdao.com')) {
-        /// 考虑  's  Guarantor's vehicle information, guarantor's real estate information
-        /// 谷歌翻译处理
-        /// 待翻译的字符串
-        var willTranslateStr = '';
-        if (loadUrl.includes('translate.google.cn')) {
-            // 谷歌翻译
-            willTranslateStr = document.getElementsByClassName('text-dummy')[0].innerHTML
-        } else if (loadUrl.includes('fanyi.baidu.com')) {
-            // 百度翻译
-            willTranslateStr = document.getElementsByClassName("ordinary-output source-output")[0].innerText
-        } else if (loadUrl.includes('fanyi.youdao.com')) {
-            willTranslateStr = document.getElementsByClassName('input__original__area')[0].innerHTML
-        }
-        /// 翻译后的字符串 ,如  Daily trend chart
-        var translatedStr = ''
-        if (loadUrl.includes('translate.google.cn')) {
-            // 谷歌翻译
-            translatedStr = document.getElementsByClassName('tlid-translation translation')[0].innerText;
-        } else if (loadUrl.includes('fanyi.baidu.com')) {
-            // 百度翻译
-            translatedStr = document.getElementsByClassName("ordinary-output target-output clearfix")[0].innerText
-        } else if (loadUrl.includes('fanyi.youdao.com')) {
-            translatedStr = document.getElementsByClassName('input__target__text')[0].innerText
-        }
-        if (willTranslateStr.indexOf("、") >= 0) {
-            // 多个单词 如，Daily trend chart, monthly trend chart
-            let willTranslateArray = willTranslateStr.split("、")
-            let translatedArray = translatedStr.split(",")
-            let str = ''
-            let label = ''
-            for (let index = 0; index < translatedArray.length; index++) {
-                const willTranslate = willTranslateArray[index];
-                const translated = translatedArray[index];
-
-                str += translate(willTranslate, translated, 'str') + '\n'
-                str = ""
-                label += translate(willTranslate, translated, 'label') + '\n'
-            }
-            return str + '\n' + label
-        } else {
-            // 一个单词 如，Daily trend chart
-            let str = translate(willTranslateStr, translatedStr, 'str')
-            str = ""
-            let label = translate(willTranslateStr, translatedStr, 'label')
-            return str + '\n' + '\n' + label
-
-        }
-
-        /// 日趋势图
-        return "/// " + willTranslateStr + "\n" + "NSString *" + translatedStr + "Str" + " = @\"" + willTranslateStr + "\";"
-
-    } 
-    else if (loadUrl.indexOf('http://tool.chinaz.com/dns?') >= 0) {
-        /// host dns 处理
-        var cells = document.getElementsByClassName('ReListCent ReLists bor-b1s clearfix')
-        var cellIdx;
-        var outArra = []
-        for (cellIdx = 0; cellIdx < cells.length; cellIdx++) {
-            var cell = cells[cellIdx];
-            var cellStrs = cell.innerText.split('\n');
-            if (cellStrs.length === 6) {
-
-                var ipStr = cellStrs[1].split(' ')[0];
-                var sslTimeStr = cellStrs[3];
-
-
-                if (sslTimeStr.length < 3 && outArra.length < 5) {
-                    outArra.push({ 'ip': ipStr, 'ssl': sslTimeStr })
-                }
-            } else if (cellStrs.length > 6) {
-
-                var idx;
-                var ips = [];
-                var ssls = [];
-                for (idx = 1; idx < cellStrs.length; idx++) {
-                    var idxStr = cellStrs[idx];
-
-                    /*
-                    ["OpenDNS[海外]", "151.101.1.194 [美国 Fastly公司CDN网络节点]", "", "151.101.65.194 [美国 Fastly公司CDN网络节点]", "", "151.101.129.194 [美国 Fastly公司CDN网络节点]", "", "151.101.193.194 [美国 Fastly公司CDN网络节点]", "", "30", "", "30", "", "30", "", "30", "", ""]
-                    */
-                    if (idxStr.length > 8) {
-                        ips.push(idxStr.split(' ')[0])
-                    } else if (idxStr.length >= 1) {
-                        ssls.push(idxStr)
-                    }
-                }
-
-                var outIdx;
-                for (outIdx = 0; outIdx < ips.length; outIdx++) {
-                    var ip = ips[outIdx];
-                    var sslStr = ssls[outIdx];
-                    if (sslStr.length < 3 && outArra.length < 5) {
-                        outArra.push({ 'ip': ip, 'ssl': sslStr })
-                    }
-                }
-            } else if (cellStrs.length < 6) {
-            }
-        }
-
-
-
-        var arr = outArra.sort(compare('ssl'));
-
-        var outStr = '';
-
-        for (k = 0; k < arr.length; k++) {
-            var dict = arr[k];
-
-            if (dict.hasOwnProperty('ip') && dict.hasOwnProperty('ssl')) {
-
-                var ip = dict['ip'];
-                var ssl = dict['ssl'];
-                var url = document.getElementsByClassName('search-write-cont w360 WrapHid')[0].value;
-                var ipLine = '\n' + ip + ' ' + ssl
-                if (url) {
-                    ipLine = '\n' + ip + ' ' + url
-                }
-                if (outStr.indexOf(ip) === -1) {
-
-                    outStr += ipLine
-                }
-
-
-            }
-
-        }
-
-        return outStr;
-    } 
-    
+    }
     else if (loadUrl.indexOf('gateway-manager') >= 0) {
         /*
       // MARK: 编辑部门 http://ult-gateway-manager.qyd.com/#/serviceManage/preview/827
