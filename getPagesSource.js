@@ -183,7 +183,15 @@ function DOMtoString(document_root) {
 
         }
     } 
-    else if (loadUrl.indexOf('ult-yapi.che001.com') >= 0) {
+    else if (loadUrl.includes('91hiwork')) {
+        // 接口名称 获得推荐商品和课程
+        let apiCNName = document.getElementsByClassName('ant-col-8 colName')[0].innerText;
+        // POST
+        let apiMethod = document.getElementsByClassName('colValue tag-method')[0].innerText;
+        // /api/shortvideo/getproductandcourse
+        let api = document.getElementsByClassName('colValue')[3].innerText;
+
+        
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-1')[0].innerText
         // document.getElementsByClassName('ant-table-row  ant-table-row-level-2')[0].innerText
         let arr1 = document.getElementsByClassName('ant-table-row  ant-table-row-level-1');
