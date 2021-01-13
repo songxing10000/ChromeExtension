@@ -224,7 +224,7 @@ function DOMtoString(document_root) {
         paramDictStr += '\n\xa0\xa0\xa0\xa0};'
         let strOut =
             `/// ${apiCNName} ${tabUrl}${proDesStr}
-            +(void)${methodParamStr} failure:(void (^)(NSError *))failure success:(void (^)(id))success {
+            +(void)${methodParamStr} failure:(void (^)(NSError * _Nullable error))failure success:(void (^)(id _Nullable responseObject))success {
                 \xa0\xa0\xa0\xa0${paramDictStr}
                 \xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}" parameters:dict type:${apiMethodStr} companytype:HttpRequestCompanyTypeHilife success:success failure:failure];
             }`;
