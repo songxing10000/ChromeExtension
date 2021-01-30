@@ -304,12 +304,69 @@ function DOMtoString(document_root) {
         // 这里得分开写，不然只能出来一个，坑
         return desStr + reqStr + srtOut3 + strOut + secModelStr + strOut2 + '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
     }
-    /// 根据网页抓取property
-    var df = document.querySelector("body > div > div > div.col-xs-16.col-xs-offset-8.main > div.search-content > ul");
-    for (const dff in df) {
-        console.log(df.length);
-    }
+    else if (loadUrl.includes('easydoc.xyz')){
+        // https://easydoc.xyz/s/30605305/JVmM5Cjk/dqZT5c4m
+        let apiDes = document.getElementsByClassName("section-title")[0].innerText.split('\n')[0]
+        let apiMethod1 = document.getElementsByClassName("el-tag el-tag--light method-post")[0]
+        let apiMethodStr = 'get' 
+        if (typeof apiMethod1 !== 'undefined') {
+            apiMethodStr = 'post' 
+        } 
+        
 
+        let apiStr = document.getElementsByClassName("tag-url el-tag el-tag--info el-tag--light")[0].innerText
+
+        var paramDesStrs = []
+        var paramStrs2 = []
+
+        let paramStrs = document.getElementsByClassName("el-tree custom-tree")[1].innerText.split('\n')
+
+        var desStartStr = '/// @param '
+        /// 方法参数
+        let methodParameterStr = ''
+        for (var i=0; i<paramStrs.length-1; i++) {
+            // 0 1 2
+            // 3 4 5
+             if (i % 3 == 0) {
+                 let name = paramStrs[i];
+                desStartStr += name;
+                if (typeof paramStrs2[name] === "undefined" || paramStrs2[name].length <= 0) {
+                    
+                    paramStrs2[name] = `\ndict[@"${name}"] = ${name};`
+                    methodParameterStr += `${name}:(NSString *)${name} `
+                }
+                paramStrs.push(name)
+             } else if (i % 3 == 2) {
+                desStartStr += (' ' + paramStrs[i]);
+
+                paramDesStrs.push(desStartStr)
+                desStartStr = '\n/// @param '
+             } 
+        } 
+        let paramArr =[]
+        for(let i in paramStrs2) {
+            paramArr.push(paramStrs2[i]);
+       }
+        return `
+        /// ${apiDes} ${loadUrl}
+        ${paramDesStrs}
+        + (void)apiName${methodParameterStr}scuccess:(requestSuccessBlock)success failure:(requestFailureBlock)failure  {
+            
+            NSMutableDictionary *dict = [NSMutableDictionary dictionary];${paramArr.join('')}
+
+            [HDNet ${apiMethodStr}:@"${apiStr}" params:dict success:success failure:failure];
+        }
+        `
+        /*
+        "token
+        String
+        【不可重复使用】易盾token（有效期2分钟）
+        access_token
+        String
+        【不可重复使用】运营商授权码（有效期2分钟）"
+        */
+       // /// @param phone 手机号
+    }
 
     return 'ff';
     var outstr = '';
