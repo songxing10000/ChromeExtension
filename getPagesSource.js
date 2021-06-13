@@ -217,9 +217,9 @@ function DOMtoString(document_root) {
             proDesStr += '\n/// @param ' + key + ' ' + item
             methodParamStr += ' ' + key + ':(NSString *)' + key
             paramDictStr += '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0@"' + key + '": (' + key + '.length > 0 ? ' + key + ' : @""),'
-            
+
         }
-        
+
 
         paramDictStr += '\n\xa0\xa0\xa0\xa0};'
         let strOut =
@@ -304,15 +304,15 @@ function DOMtoString(document_root) {
         // 这里得分开写，不然只能出来一个，坑
         return desStr + reqStr + srtOut3 + strOut + secModelStr + strOut2 + '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0}\n}'
     }
-    else if (loadUrl.includes('easydoc.xyz')){
+    else if (loadUrl.includes('easydoc.xyz')) {
         // https://easydoc.xyz/s/30605305/JVmM5Cjk/dqZT5c4m
         let apiDes = document.getElementsByClassName("section-title")[0].innerText.split('\n')[0]
         let apiMethod1 = document.getElementsByClassName("el-tag el-tag--light method-post")[0]
-        let apiMethodStr = 'get' 
+        let apiMethodStr = 'get'
         if (typeof apiMethod1 !== 'undefined') {
-            apiMethodStr = 'post' 
-        } 
-        
+            apiMethodStr = 'post'
+        }
+
 
         let apiStr = document.getElementsByClassName("tag-url el-tag el-tag--info el-tag--light")[0].innerText
 
@@ -324,29 +324,29 @@ function DOMtoString(document_root) {
         var desStartStr = '/// @param '
         /// 方法参数
         let methodParameterStr = ''
-        for (var i=0; i<paramStrs.length-1; i++) {
+        for (var i = 0; i < paramStrs.length - 1; i++) {
             // 0 1 2
             // 3 4 5
-             if (i % 3 == 0) {
-                 let name = paramStrs[i];
+            if (i % 3 == 0) {
+                let name = paramStrs[i];
                 desStartStr += name;
                 if (typeof paramStrs2[name] === "undefined" || paramStrs2[name].length <= 0) {
-                    
+
                     paramStrs2[name] = `\ndict[@"${name}"] = ${name};`
                     methodParameterStr += `${name}:(NSString *)${name} `
                 }
                 paramStrs.push(name)
-             } else if (i % 3 == 2) {
+            } else if (i % 3 == 2) {
                 desStartStr += (' ' + paramStrs[i]);
 
                 paramDesStrs.push(desStartStr)
                 desStartStr = '\n/// @param '
-             } 
-        } 
-        let paramArr =[]
-        for(let i in paramStrs2) {
+            }
+        }
+        let paramArr = []
+        for (let i in paramStrs2) {
             paramArr.push(paramStrs2[i]);
-       }
+        }
         return `
         /// ${apiDes} ${loadUrl}
         ${paramDesStrs}
@@ -365,92 +365,65 @@ function DOMtoString(document_root) {
         String
         【不可重复使用】运营商授权码（有效期2分钟）"
         */
-       // /// @param phone 手机号
+        // /// @param phone 手机号
     }
     else if (loadUrl.includes('mping.chinaz.com')) {
         let table = document.getElementsByClassName('table mb0 fz12')[1]
         let strs = table.innerText.split('\n')
-        let fastIpIdxs=[]
-        let ipIdxs=[]
-        for (let index = 0; index < strs.length; index++) {
-            let str = strs[index]
-            let ms = str.split('\t')[2]
-            if(ms.includes('<')) {
-                fastIpIdxs.push(index)
+        let filterStr = strs.filter(function (a) { return a.includes('ms') });
+        let mapStrs = filterStr.map(function (a) {
+            let maps = a.split('\t')
+            maps[2] = maps[2].replace('<', '')
+            maps[2] = maps[2].replace('ms', '')
+            return [maps[0], maps[1], maps[2]].join('\t')
+        });
+        // 升序
+        let sortStrs = mapStrs.sort(function (a, b) {
+            return a.split('\t')[2] - b.split('\t')[2]
+        });
+        let formastStr = ''
+        for (let index = 0; index < sortStrs.slice(0, 4).length; index++) {
+            let desIp = sortStrs[index].split('\t')[1]
+            if (!formastStr.includes(desIp)) {
+                formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value + '\n'
             }
-            else if(ms.includes('ms')) {
-                ipIdxs.push(index)
-            }
         }
-
-        if (fastIpIdxs.length == 0) {
-            // 没有排序 正常的Ip
-            console.log('fastIpIdxs.length == 0')
-        }
-        else if(fastIpIdxs.length == 1) {
-            // 德国[海外]	140.82.121.3	<1ms
-            // 就一个直接显示
-            let desIp = strs[fastIpIdxs[0]].split('\t')[1]
-            return desIp + ' ' + document.getElementsByTagName('input')[0].value
-        }
-        else if (fastIpIdxs.length > 1) {
-            console.log(fastIpIdxs)
-            // 多个小于1ms的
-            let formastStr=''
-            for (let index = 0; index < fastIpIdxs.length; index++) {
-                
-                let desIp = table.children[fastIpIdxs[index]].innerText.split('\n')[1]
-                if(formastStr.includes(desIp)){
-                    // 相同ip就不要加入了
-                    continue
-                }
-                formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value+'\n'
-
-            }
-            return formastStr
-        }
+        return formastStr
     }
 
     else if (loadUrl.includes('ping.chinaz')) {
         let table = document.getElementsByClassName('item-table')[0]
-        let fastIpIdxs=[]
-        let ipIdxs=[]
+        let strs = []
         for (let index = 0; index < table.children.length; index++) {
             let row = table.children[index]
             let str = row.innerText
-            let ms = str.split('\n')[3]
-            if(ms.includes('<')) {
-                fastIpIdxs.push(index)
+            let rowStrs = str.split('\n')
+            let ms = rowStrs[3]
+            if (ms.includes('ms')) {
+                ms = ms.replace('ms', '')
+                ms = ms.replace('<', '')
+                strs.push([rowStrs[0], rowStrs[1], ms].join('\n'))
             }
-            else if(ms.includes('ms')) {
-                ipIdxs.push(index)
+        }
+        // 升序
+        let sortStrs = strs.sort(function (a, b) {
+            return a.split('\n')[2] - b.split('\n')[2]
+        });
+        console.log(sortStrs)
+        // 多个小于1ms的
+        let formastStr = ''
+        for (let index = 0; index < sortStrs.slice(0, 4).length; index++) {
+
+            let desIp = sortStrs[index].split('\n')[1]
+            if (formastStr.includes(desIp)) {
+                // 相同ip就不要加入了
+                continue
             }
+            formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value + '\n'
         }
 
-        if (fastIpIdxs.length == 0) {
-            // 没有排序 正常的Ip
-        }
-        else if(fastIpIdxs.length == 1) {
-            // 就一个直接显示
-            let desIp = table.children[fastIpIdxs[0]].innerText.split('\n')[1]
-            return desIp + ' ' + document.getElementsByTagName('input')[0].value
-        }
-        else if (fastIpIdxs.length > 1) {
-            console.log(fastIpIdxs)
-            // 多个小于1ms的
-            let formastStr=''
-            for (let index = 0; index < fastIpIdxs.length; index++) {
-                
-                let desIp = table.children[fastIpIdxs[index]].innerText.split('\n')[1]
-                if(formastStr.includes(desIp)){
-                    // 相同ip就不要加入了
-                    continue
-                }
-                formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value+'\n'
+        return formastStr
 
-            }
-            return formastStr
-        }
     }
     return 'ff';
     var outstr = '';
