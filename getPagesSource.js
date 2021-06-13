@@ -367,7 +367,91 @@ function DOMtoString(document_root) {
         */
        // /// @param phone 手机号
     }
+    else if (loadUrl.includes('mping.chinaz.com')) {
+        let table = document.getElementsByClassName('table mb0 fz12')[1]
+        let strs = table.innerText.split('\n')
+        let fastIpIdxs=[]
+        let ipIdxs=[]
+        for (let index = 0; index < strs.length; index++) {
+            let str = strs[index]
+            let ms = str.split('\t')[2]
+            if(ms.includes('<')) {
+                fastIpIdxs.push(index)
+            }
+            else if(ms.includes('ms')) {
+                ipIdxs.push(index)
+            }
+        }
 
+        if (fastIpIdxs.length == 0) {
+            // 没有排序 正常的Ip
+            console.log('fastIpIdxs.length == 0')
+        }
+        else if(fastIpIdxs.length == 1) {
+            // 德国[海外]	140.82.121.3	<1ms
+            // 就一个直接显示
+            let desIp = strs[fastIpIdxs[0]].split('\t')[1]
+            return desIp + ' ' + document.getElementsByTagName('input')[0].value
+        }
+        else if (fastIpIdxs.length > 1) {
+            console.log(fastIpIdxs)
+            // 多个小于1ms的
+            let formastStr=''
+            for (let index = 0; index < fastIpIdxs.length; index++) {
+                
+                let desIp = table.children[fastIpIdxs[index]].innerText.split('\n')[1]
+                if(formastStr.includes(desIp)){
+                    // 相同ip就不要加入了
+                    continue
+                }
+                formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value+'\n'
+
+            }
+            return formastStr
+        }
+    }
+
+    else if (loadUrl.includes('ping.chinaz')) {
+        let table = document.getElementsByClassName('item-table')[0]
+        let fastIpIdxs=[]
+        let ipIdxs=[]
+        for (let index = 0; index < table.children.length; index++) {
+            let row = table.children[index]
+            let str = row.innerText
+            let ms = str.split('\n')[3]
+            if(ms.includes('<')) {
+                fastIpIdxs.push(index)
+            }
+            else if(ms.includes('ms')) {
+                ipIdxs.push(index)
+            }
+        }
+
+        if (fastIpIdxs.length == 0) {
+            // 没有排序 正常的Ip
+        }
+        else if(fastIpIdxs.length == 1) {
+            // 就一个直接显示
+            let desIp = table.children[fastIpIdxs[0]].innerText.split('\n')[1]
+            return desIp + ' ' + document.getElementsByTagName('input')[0].value
+        }
+        else if (fastIpIdxs.length > 1) {
+            console.log(fastIpIdxs)
+            // 多个小于1ms的
+            let formastStr=''
+            for (let index = 0; index < fastIpIdxs.length; index++) {
+                
+                let desIp = table.children[fastIpIdxs[index]].innerText.split('\n')[1]
+                if(formastStr.includes(desIp)){
+                    // 相同ip就不要加入了
+                    continue
+                }
+                formastStr += desIp + ' ' + document.getElementsByTagName('input')[0].value+'\n'
+
+            }
+            return formastStr
+        }
+    }
     return 'ff';
     var outstr = '';
     var tables = document.getElementsByTagName('table');
