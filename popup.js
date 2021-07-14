@@ -26,6 +26,30 @@ function onWindowLoad() {
     }
   });
 
+  // 复制代码事件
+  document.getElementById('copyCode').addEventListener('click', function () {
+  
+    
+    let codeStr = document.getElementById('message').innerText;
+    copyStr(codeStr)
+  
+  });
+
 }
 // 窗口载入时使用自己的载入函数
 window.onload = onWindowLoad;
+
+
+/// 复制字符串到粘贴板
+function copyStr(str) {
+  // 复制字符串到粘贴板 http://www.voidcn.com/article/p-effxpdwn-buc.html
+  var input = document.createElement('textarea');
+  document.body.appendChild(input);
+  
+  input.value = str;
+
+  input.focus();
+  input.select();
+  document.execCommand('Copy');
+  input.remove();
+}
