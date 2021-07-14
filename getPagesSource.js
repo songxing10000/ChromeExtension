@@ -194,39 +194,42 @@ function DOMtoString(document_root) {
         let apiStr = api.substr(0, 1) === '/' ? api.slice(1) : api;
         let apiMethodStr = apiMethod === 'POST' ? "HttpRequestTypePost" : "HttpRequestTypeGet";
         let dict = []
-        let body = document.getElementsByTagName('table')[1];
+        let body = document.getElementsByTagName('table')[0];
         if ((typeof body) !== 'undefined') {
-            let rows = document.getElementsByTagName('table')[1].rows;
+            let rows = document.getElementsByTagName('table')[0].rows;
             if ((typeof rows) !== 'undefined') {
                 for (let row of rows) {
-                    let propertyName = row.cells[0].innerText;
+                    // 参数名称	是否必须	示例	备注
+                    let propertyName = row.innerText.split('\t')[0];
                     if (propertyName === '参数名称') continue;
-                    let propertyDes = row.cells[4].innerText;
-                    dict[propertyName] = propertyDes;
+                    /// js替换\n
+                    let propertyDes = row.innerText.split('\t')[3].replace(/\n/g,'')
+                    dict[propertyName] = propertyDes
                 }
 
             }
 
         }
+        console.log(dict)
         //    
         let proDesStr = ''
         let methodParamStr = ''
-        let paramDictStr = 'NSDictionary *dict =\n\xa0\xa0\xa0\xa0@{\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0@"workId": MY_WORK_ID,'
+        let paramDictStr = 'NSMutableDictionary *dict = [NSMutableDictionary dictionary];'
         for (var key in dict) {
             var item = dict[key];
             proDesStr += '\n/// @param ' + key + ' ' + item
             methodParamStr += ' ' + key + ':(NSString *)' + key
-            paramDictStr += '\n\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0@"' + key + '": (' + key + '.length > 0 ? ' + key + ' : @""),'
+            paramDictStr += '\n\xa0\xa0\xa0\xa0dict[@"' + key + '"] = '+key+';'
 
         }
 
 
-        paramDictStr += '\n\xa0\xa0\xa0\xa0};'
+
         let strOut =
             `/// ${apiCNName} ${tabUrl}${proDesStr}
-            +(void)${methodParamStr} failure:(void (^)(NSError * _Nullable error))failure success:(void (^)(id _Nullable responseObject))success {
+            +(void)${methodParamStr} failure:(nullable void (^)(NSString * _Nullable errorStr))failure success:(nullable void (^)(id _Nullable resDataObj))success {
                 \xa0\xa0\xa0\xa0${paramDictStr}
-                \xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}" parameters:dict type:${apiMethodStr} companytype:HttpRequestCompanyTypeHilife success:success failure:failure];
+                \xa0\xa0\xa0\xa0[HttpRequest request:@"${apiStr}" parameter:dict type:${apiMethodStr} cpType:HttpRequestCompanyTypeHilife failure:failure success:success];
             }`;
         return strOut
     }
